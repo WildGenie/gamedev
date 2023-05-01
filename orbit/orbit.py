@@ -123,13 +123,14 @@ while running:
     clock.tick(FPS)
     # handle all events
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if (
+            event.type != pygame.QUIT
+            and event.type == pygame.KEYDOWN
+            and event.key == pygame.K_ESCAPE
+            or event.type == pygame.QUIT
+        ):
             pygame.quit()
             sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
 
     # find sun's force on each body
     for body in bodies:

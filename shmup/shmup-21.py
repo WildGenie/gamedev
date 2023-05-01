@@ -40,8 +40,7 @@ def draw_text(surf, text, size, x, y):
     surf.blit(text_surface, text_rect)
 
 def draw_shield_bar(surf, x, y, pct):
-    if pct < 0:
-        pct = 0
+    pct = max(pct, 0)
     BAR_LENGTH = 100
     BAR_HEIGHT = 10
     fill = (pct / 100) * BAR_LENGTH
@@ -109,10 +108,8 @@ class Player(pg.sprite.Sprite):
         # move the sprite
         self.rect.x += self.speedx
         # stop at the edges
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.left < 0:
-            self.rect.left = 0
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.left = max(self.rect.left, 0)
 
     def powerup(self):
         self.game.power_sound.play()
@@ -267,7 +264,7 @@ class Game:
         self.powerups = pg.sprite.Group()
 
         self.player = Player(self, [self.all_sprites])
-        for i in range(15):
+        for _ in range(15):
             Mob(self.meteor_images, [self.all_sprites, self.mobs])
         self.score = 0
         self.last_powerup = pg.time.get_ticks()
@@ -280,8 +277,10 @@ class Game:
         self.power_sound = pg.mixer.Sound(path.join(sound_dir, 'pow5.wav'))
         self.player_die_sound = pg.mixer.Sound(path.join(sound_dir, 'rumble1.ogg'))
         self.expl_sounds = []
-        for snd in ['expl3.wav', 'expl6.wav']:
-            self.expl_sounds.append(pg.mixer.Sound(path.join(sound_dir, snd)))
+        self.expl_sounds.extend(
+            pg.mixer.Sound(path.join(sound_dir, snd))
+            for snd in ['expl3.wav', 'expl6.wav']
+        )
         pg.mixer.music.load(path.join(sound_dir, 'tgfcoder-FrozenJam-SeamlessLoop.ogg'))
         pg.mixer.music.set_volume(0.4)
         self.background = pg.image.load(path.join(img_dir, 'starfield.png')).convert()
@@ -293,23 +292,24 @@ class Game:
         meteor_list = ['meteorBrown_med3.png', 'meteorBrown_med1.png',
                        'meteorBrown_small2.png', 'meteorBrown_tiny1.png']
         self.meteor_images = []
-        for img in meteor_list:
-            self.meteor_images.append(pg.image.load(path.join(img_dir, img)).convert())
-        self.powerup_images = {}
-        self.powerup_images['shield'] = pg.image.load(path.join(img_dir, 'shield_gold.png')).convert()
+        self.meteor_images.extend(
+            pg.image.load(path.join(img_dir, img)).convert() for img in meteor_list
+        )
+        self.powerup_images = {
+            'shield': pg.image.load(
+                path.join(img_dir, 'shield_gold.png')
+            ).convert()
+        }
         self.powerup_images['gun'] = pg.image.load(path.join(img_dir, 'bolt_gold.png')).convert()
-        self.explosion_anim = {}
-        self.explosion_anim['lg'] = []
-        self.explosion_anim['sm'] = []
-        self.explosion_anim['player'] = []
+        self.explosion_anim = {'lg': [], 'sm': [], 'player': []}
         for i in range(9):
-            img = pg.image.load(path.join(img_dir, 'regularExplosion0{}.png'.format(i))).convert()
+            img = pg.image.load(path.join(img_dir, f'regularExplosion0{i}.png')).convert()
             img.set_colorkey(BLACK)
             img1 = pg.transform.scale(img, (75, 75))
             self.explosion_anim['lg'].append(img1)
             img2 = pg.transform.scale(img, (32, 32))
             self.explosion_anim['sm'].append(img2)
-            img = pg.image.load(path.join(img_dir, 'sonicExplosion0{}.png'.format(i))).convert()
+            img = pg.image.load(path.join(img_dir, f'sonicExplosion0{i}.png')).convert()
             img.set_colorkey(BLACK)
             self.explosion_anim['player'].append(img)
 
@@ -365,8 +365,7 @@ class Game:
             if hit.type == 'shield':
                 self.player.shield += 20
                 self.shield_sound.play()
-                if self.player.shield > 100:
-                    self.player.shield = 100
+                self.player.shield = min(self.player.shield, 100)
             if hit.type == 'gun':
                 self.player.powerup()
 

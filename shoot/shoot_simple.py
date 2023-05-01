@@ -125,7 +125,7 @@ def show_go_screen(score):
     # display the Game Over screen
     screen.fill(BGCOLOR)
     draw_text("GAME OVER", 58, WIDTH/2, HEIGHT/4)
-    text = "Score: %s" % score
+    text = f"Score: {score}"
     draw_text(text, 24, WIDTH/2, HEIGHT/2)
     draw_text("Press a key to begin", 24, WIDTH/2, HEIGHT*3/4)
     pygame.display.update()
@@ -174,7 +174,7 @@ while True:
     bullet_sprite_list = pygame.sprite.Group()
     player = Player()
     active_sprite_list.add(player)
-    for i in range(10):
+    for _ in range(10):
         meteor = Meteor()
         active_sprite_list.add(meteor)
         meteor_sprite_list.add(meteor)
@@ -206,10 +206,7 @@ while True:
 
         # Game logic goes here  #########
         active_sprite_list.update()
-        # check for collisions
-        # first, ship with meteors
-        hit = pygame.sprite.spritecollideany(player, meteor_sprite_list)
-        if hit:
+        if hit := pygame.sprite.spritecollideany(player, meteor_sprite_list):
             # you die
             player.explode_snd.play()
             pygame.time.wait(500)
@@ -218,7 +215,7 @@ while True:
         hits = pygame.sprite.groupcollide(meteor_sprite_list, bullet_sprite_list,
                                           True, True)
         # for each meteor destroyed, spawn a new one
-        for hit in hits:
+        for _ in hits:
             player.hit_snd.play()
             player.score += 10
             newmeteor = Meteor()
@@ -229,7 +226,7 @@ while True:
         screen.fill(BGCOLOR)
 
         active_sprite_list.draw(screen)
-        text = 'Score: %s' % player.score
+        text = f'Score: {player.score}'
         draw_text(text, 18, 45, 10)
         # after drawing, flip the display
         pygame.display.flip()

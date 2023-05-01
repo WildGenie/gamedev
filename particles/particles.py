@@ -60,15 +60,12 @@ class Particle(pygame.sprite.Sprite):
                 ratio = (self.life - self.fade_start) / self.duration
             except ZeroDivisionError:
                 ratio = 1.0
-            if ratio > 1.0:
-                ratio = 1.0
+            ratio = min(ratio, 1.0)
             mask = int(255 * (1 - ratio))
             self.image.fill([mask, mask, mask], special_flags=pygame.BLEND_MIN)
 
     def is_dead(self):
-        if self.life > self.lifetime:
-            return True
-        return False
+        return self.life > self.lifetime
 
 class ParticleEmitter:
     def __init__(self, game, parent, offset, vel, image, count, lifetime,
@@ -87,11 +84,11 @@ class ParticleEmitter:
         self.fade_start = fade_start
         self.particles = []
         self.timer = 0
-        self.prevcurve = [self.pos for x in range(3)]
+        self.prevcurve = [self.pos for _ in range(3)]
         self.active = True
 
     def print_state(self):
-        print("c:{}, p:{}".format(self.count, len(self.particles)))
+        print(f"c:{self.count}, p:{len(self.particles)}")
 
     def update(self):
         self.pos = self.parent.pos + self.game.OFFSET + self.offset.rotate(-self.parent.rot)
@@ -128,10 +125,7 @@ class ParticleEmitter:
         self.prevcurve[0] = self.pos
 
     def draw(self):
-        rects = []
-        for part in self.particles:
-            rects.append(part.blit())
-        return rects
+        return [part.blit() for part in self.particles]
 
     def kill_all(self):
         self.count = 0

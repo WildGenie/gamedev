@@ -36,24 +36,24 @@ def draw_text(text, size, color, x, y, align="nw"):
     font = pg.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
-    if align == "nw":
-        text_rect.topleft = (x, y)
-    if align == "ne":
-        text_rect.topright = (x, y)
-    if align == "sw":
-        text_rect.bottomleft = (x, y)
-    if align == "se":
-        text_rect.bottomright = (x, y)
-    if align == "n":
-        text_rect.midtop = (x, y)
-    if align == "s":
-        text_rect.midbottom = (x, y)
-    if align == "e":
-        text_rect.midright = (x, y)
-    if align == "w":
-        text_rect.midleft = (x, y)
     if align == "center":
         text_rect.center = (x, y)
+    elif align == "e":
+        text_rect.midright = (x, y)
+    elif align == "n":
+        text_rect.midtop = (x, y)
+    elif align == "ne":
+        text_rect.topright = (x, y)
+    elif align == "nw":
+        text_rect.topleft = (x, y)
+    elif align == "s":
+        text_rect.midbottom = (x, y)
+    elif align == "se":
+        text_rect.bottomright = (x, y)
+    elif align == "sw":
+        text_rect.bottomleft = (x, y)
+    elif align == "w":
+        text_rect.midleft = (x, y)
     screen.blit(text_surface, text_rect)
 
 def draw_grid():
@@ -77,14 +77,10 @@ class Player(pg.sprite.Sprite):
         self.pos += self.vel
         self.rect.center = self.pos
         # prevent sprite from moving off screen
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+        self.rect.left = max(self.rect.left, 0)
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.top = max(self.rect.top, 0)
+        self.rect.bottom = min(self.rect.bottom, HEIGHT)
 
     def move_8way(self):
         keystate = pg.key.get_pressed()
@@ -140,48 +136,48 @@ class Mob(pg.sprite.Sprite):
         neighbors = 0
         v = vec(0, 0)
         for other in mobs:
-            if other != self:
-                if self.pos.distance_squared_to(other.pos) < NEIGHBOR_RADIUS**2:
-                    v += other.vel
-                    neighbors += 1
-        if neighbors == 0:
-            return v
-        else:
+            if (
+                other != self
+                and self.pos.distance_squared_to(other.pos) < NEIGHBOR_RADIUS**2
+            ):
+                v += other.vel
+                neighbors += 1
+        if neighbors != 0:
             v /= neighbors
             v.normalize_ip()
-            return v
+        return v
 
     def find_cohesion(self):
         neighbors = 0
         v = vec(0, 0)
         for other in mobs:
-            if other != self:
-                if self.pos.distance_squared_to(other.pos) < NEIGHBOR_RADIUS**2:
-                    v += other.pos
-                    neighbors += 1
-        if neighbors == 0:
-            return v
-        else:
+            if (
+                other != self
+                and self.pos.distance_squared_to(other.pos) < NEIGHBOR_RADIUS**2
+            ):
+                v += other.pos
+                neighbors += 1
+        if neighbors != 0:
             v /= neighbors
             v -= self.pos
             v.normalize_ip()
-            return v
+        return v
 
     def find_separation(self):
         neighbors = 0
         v = vec(0, 0)
         for other in mobs:
-            if other != self:
-                if self.pos.distance_squared_to(other.pos) < NEIGHBOR_RADIUS**2:
-                    v += other.pos - self.pos
-                    neighbors += 1
-        if neighbors == 0:
-            return v
-        else:
+            if (
+                other != self
+                and self.pos.distance_squared_to(other.pos) < NEIGHBOR_RADIUS**2
+            ):
+                v += other.pos - self.pos
+                neighbors += 1
+        if neighbors != 0:
             v /= neighbors
             v *= -1
             v.normalize_ip()
-            return v
+        return v
 
     def update(self):
         self.dir = (player.pos - self.pos).angle_to(vec(1, 0))
@@ -213,7 +209,7 @@ all_sprites = pg.sprite.Group()
 mobs = pg.sprite.Group()
 player = Player()
 all_sprites.add(player)
-for i in range(NUM_MOBS):
+for _ in range(NUM_MOBS):
     Mob()
 paused = False
 

@@ -24,19 +24,23 @@ BG_LAYER = 1
 POW_LAYER = 2
 
 # Player 1 settings
-PLAYER1 = {'name': 'player1',
-           'img': 'car_blue_small_1.png',
-           'heading': 45,
-           'pos': (WIDTH / 2, HEIGHT * 3 / 4),
-           'accel': 1000,
-           'braking': 350,
-           'friction': 0.05,
-           'drag': 0.05 / 30,
-           'steering_fast': 12,
-           'steering_slow': 25,
-           'max_speed': 500,
-           'wheelbase': 30}
-PLAYER1['controls'] = {'TurnLeft': pg.K_LEFT,
-                       'TurnRight': pg.K_RIGHT,
-                       'Accelerate': pg.K_UP,
-                       'Brake': pg.K_DOWN}
+PLAYER1 = {
+    'name': 'player1',
+    'img': 'car_blue_small_1.png',
+    'heading': 45,
+    'pos': (WIDTH / 2, HEIGHT * 3 / 4),
+    'accel': 1000,
+    'braking': 350,
+    'friction': 0.05,
+    'drag': 0.05 / 30,
+    'steering_fast': 12,
+    'steering_slow': 25,
+    'max_speed': 500,
+    'wheelbase': 30,
+    'controls': {
+        'TurnLeft': pg.K_LEFT,
+        'TurnRight': pg.K_RIGHT,
+        'Accelerate': pg.K_UP,
+        'Brake': pg.K_DOWN,
+    },
+}

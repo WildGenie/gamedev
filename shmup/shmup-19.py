@@ -38,8 +38,7 @@ def draw_text(text, size, x, y):
     screen.blit(text_surface, text_rect)
 
 def draw_shield_bar(x, y, pct):
-    if pct < 0:
-        pct = 0
+    pct = max(pct, 0)
     BAR_LENGTH = 100
     BAR_HEIGHT = 10
     fill = (pct / 100) * BAR_LENGTH
@@ -106,10 +105,8 @@ class Player(pygame.sprite.Sprite):
         # move the sprite
         self.rect.x += self.speedx
         # stop at the edges
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.left < 0:
-            self.rect.left = 0
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.left = max(self.rect.left, 0)
 
     def powerup(self):
         power_sound.play()
@@ -256,9 +253,10 @@ pew_sound = pygame.mixer.Sound(path.join(sound_dir, 'pew.wav'))
 shield_sound = pygame.mixer.Sound(path.join(sound_dir, 'pow4.wav'))
 player_die_sound = pygame.mixer.Sound(path.join(sound_dir, 'rumble1.ogg'))
 power_sound = pygame.mixer.Sound(path.join(sound_dir, 'pow5.wav'))
-expl_sounds = []
-for snd in ['expl3.wav', 'expl6.wav']:
-    expl_sounds.append(pygame.mixer.Sound(path.join(sound_dir, snd)))
+expl_sounds = [
+    pygame.mixer.Sound(path.join(sound_dir, snd))
+    for snd in ['expl3.wav', 'expl6.wav']
+]
 pygame.mixer.music.load(path.join(sound_dir, 'tgfcoder-FrozenJam-SeamlessLoop.ogg'))
 pygame.mixer.music.set_volume(0.4)
 background = pygame.image.load(path.join(img_dir, "starfield.png")).convert()
@@ -269,24 +267,28 @@ player_mini_image = pygame.transform.scale(player_image, (25, 19))
 bullet_image = pygame.image.load(path.join(img_dir, 'laserRed16.png')).convert()
 meteor_list = ['meteorBrown_med3.png', 'meteorBrown_med1.png',
                'meteorBrown_small2.png', 'meteorBrown_tiny1.png']
-meteor_images = []
-for img in meteor_list:
-    meteor_images.append(pygame.image.load(path.join(img_dir, img)).convert())
-powerup_images = {}
-powerup_images['shield'] = pygame.image.load(path.join(img_dir, 'shield_gold.png')).convert()
+meteor_images = [
+    pygame.image.load(path.join(img_dir, img)).convert() for img in meteor_list
+]
+powerup_images = {
+    'shield': pygame.image.load(
+        path.join(img_dir, 'shield_gold.png')
+    ).convert()
+}
 powerup_images['gun'] = pygame.image.load(path.join(img_dir, 'bolt_gold.png')).convert()
-explosion_anim = {}
-explosion_anim['lg'] = []
-explosion_anim['sm'] = []
-explosion_anim['player'] = []
+explosion_anim = {'lg': [], 'sm': [], 'player': []}
 for i in range(9):
-    img = pygame.image.load(path.join(img_dir, 'regularExplosion0{}.png'.format(i))).convert()
+    img = pygame.image.load(
+        path.join(img_dir, f'regularExplosion0{i}.png')
+    ).convert()
     img.set_colorkey(BLACK)
     img1 = pygame.transform.scale(img, (75, 75))
     explosion_anim['lg'].append(img1)
     img2 = pygame.transform.scale(img, (32, 32))
     explosion_anim['sm'].append(img2)
-    img = pygame.image.load(path.join(img_dir, 'sonicExplosion0{}.png'.format(i))).convert()
+    img = pygame.image.load(
+        path.join(img_dir, f'sonicExplosion0{i}.png')
+    ).convert()
     img.set_colorkey(BLACK)
     explosion_anim['player'].append(img)
 
@@ -304,7 +306,7 @@ powerups = pygame.sprite.Group()
 
 player = Player()
 all_sprites.add(player)
-for i in range(15):
+for _ in range(15):
     newmob()
 score = 0
 last_powerup = pygame.time.get_ticks()
@@ -358,8 +360,7 @@ while running:
         if hit.type == 'shield':
             player.shield += 20
             shield_sound.play()
-            if player.shield > 100:
-                player.shield = 100
+            player.shield = min(player.shield, 100)
         if hit.type == 'gun':
             player.powerup()
 

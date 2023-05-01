@@ -26,17 +26,17 @@ class Particle(pg.sprite.Sprite):
             self.kill()
 
     def shrink(self):
-        if self.age > self.fade_start:
-            try:
-                ratio = (self.age - self.fade_start) / (self.lifetime - self.fade_start)
-            except ZeroDivisionError:
-                ratio = 1
-            if ratio > 1:
-                ratio = 1
-            scale = 1 - ratio
-            self.image = pg.transform.rotozoom(img.copy(), 0, ratio)
-            self.rect = self.image.get_rect()
-            self.rect.center = self.pos
+        if self.age <= self.fade_start:
+            return
+        try:
+            ratio = (self.age - self.fade_start) / (self.lifetime - self.fade_start)
+        except ZeroDivisionError:
+            ratio = 1
+        ratio = min(ratio, 1)
+        scale = 1 - ratio
+        self.image = pg.transform.rotozoom(img.copy(), 0, ratio)
+        self.rect = self.image.get_rect()
+        self.rect.center = self.pos
     # def blit(self, surface):
     #     return surface.blit(self.image, self.rect, special_flags=pg.BLEND_RGB_SUB)
 
@@ -46,8 +46,7 @@ class Particle(pg.sprite.Sprite):
                 ratio = (self.age - self.fade_start) / (self.lifetime - self.fade_start)
             except ZeroDivisionError:
                 ratio = .5
-            if ratio > .5:
-                ratio = .5
+            ratio = min(ratio, .5)
             mask = int(255 * (1 - ratio))
             self.image.fill([mask, mask, mask], special_flags=pg.BLEND_RGBA_MIN)
 
@@ -73,7 +72,7 @@ while running:
         if e.type == pg.KEYDOWN and e.key == pg.K_ESCAPE:
             running = False
         if e.type == pg.MOUSEBUTTONDOWN:
-            for i in range(20):
+            for _ in range(20):
                 Particle(all_sprites, choice(puffs), e.pos)
 
     all_sprites.update(dt)

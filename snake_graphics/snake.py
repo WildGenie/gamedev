@@ -6,8 +6,7 @@ class Snake:
     def __init__(self, game, loc, length, images):
         self.game = game
         self.segments = []
-        for i in range(length):
-            self.segments.append(Coord(loc.x - i, loc.y))
+        self.segments.extend(Coord(loc.x - i, loc.y) for i in range(length))
         self.images = images
         self.dir = 'r'
         self.last_move = 0
@@ -27,16 +26,12 @@ class Snake:
         # self.segments[-1].draw(surf, camera, img)
 
     def hit_self(self):
-        if self.head in self.segments[1:]:
-            return True
-        return False
+        return self.head in self.segments[1:]
 
     def hit_walls(self):
         if self.head.x in [-1, GRIDWIDTH] or self.head.y in [-1, GRIDHEIGHT]:
             return True
-        if self.head in self.game.tilemap.walls:
-            return True
-        return False
+        return self.head in self.game.tilemap.walls
 
     def move(self):
         now = pg.time.get_ticks()

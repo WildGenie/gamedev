@@ -147,10 +147,7 @@ class Pipe(pygame.sprite.Sprite):
 
     def offscreen(self):
         # test to see if the pipe has moved offscreen
-        if self.rect.right < 0:
-            return True
-        else:
-            return False
+        return self.rect.right < 0
 
 def new_pipe():
     # create a new pair of pipes (upper and lower)
@@ -196,9 +193,8 @@ def show_ready_image():
 
 def load_score_images():
     sprite_sheet = SpriteSheet(path.join(img_dir, 'numbers.png'))
-    score_images = []
     image = sprite_sheet.get_image(114, 45, 24, 36)
-    score_images.append(image)
+    score_images = [image]
     image = sprite_sheet.get_image(2, 4, 24, 36)
     score_images.append(image)
     image = sprite_sheet.get_image(30, 4, 24, 36)

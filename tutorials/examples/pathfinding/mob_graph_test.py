@@ -93,8 +93,7 @@ class SquareGrid:
         if (x + y) % 2:
             results.reverse()
         results = filter(self.in_bounds, results)
-        results = filter(self.passable, results)
-        return results
+        return filter(self.passable, results)
 
 def draw_grid(grid, paths, dist):
     for x in range(0, WIDTH, TILESIZE):
@@ -110,11 +109,8 @@ def draw_grid(grid, paths, dist):
 def breadth_first_search2(graph, start):
     frontier = Queue()
     frontier.put(start)
-    came_from = {}
-    came_from[start] = None
-    distance = {}
-    distance[start] = 0
-
+    came_from = {start: None}
+    distance = {start: 0}
     while not frontier.empty():
         current = frontier.get()
         for next in graph.neighbors(current):
@@ -132,9 +128,7 @@ clock = pg.time.Clock()
 game_folder = path.dirname(__file__)
 data = []
 with open(path.join(game_folder, 'mob_test_map.txt'), 'rt') as f:
-    for line in f:
-        data.append(line.strip())
-
+    data.extend(line.strip() for line in f)
 # icons
 icon_folder = path.join(path.join(game_folder, '..'), 'icons')
 home_img = pg.image.load(path.join(icon_folder, 'target.png')).convert_alpha()
@@ -142,7 +136,7 @@ home_img = pg.transform.scale(home_img, (int(TILESIZE), int(TILESIZE)))
 home_img.fill((255, 0, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 arrows = {}
 for d in ['Up', 'Down', 'Right', 'Left']:
-    fname = 'arrow%s.png' % d
+    fname = f'arrow{d}.png'
     img = pg.image.load(path.join(icon_folder, fname)).convert_alpha()
     arrows[d] = pg.transform.scale(img, (int(TILESIZE / 1.2), int(TILESIZE / 1.2)))
 

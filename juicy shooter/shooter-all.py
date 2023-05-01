@@ -185,9 +185,9 @@ class Game:
             self.shake = False
         # get rid of bullets that hit the wall
         pygame.sprite.groupcollide(g.platforms, g.bullets, False, True)
-        # kill baddies
-        hits = pygame.sprite.groupcollide(self.enemies, self.bullets, True, True)
         if MOB_EXPLOSIONS:
+            # kill baddies
+            hits = pygame.sprite.groupcollide(self.enemies, self.bullets, True, True)
             for hit in hits:
                 expl = Explode(self.explode_frames, hit.rect.x, hit.rect.y-10)
                 self.all_sprites.add(expl)
@@ -318,21 +318,18 @@ class Player(pygame.sprite.Sprite):
         self.check_collisions('x')
         self.rect.y += self.speed_y
         self.check_collisions('y')
-        if self.flash:
-            if pygame.time.get_ticks() - self.flash.time > 10:
-                g.all_sprites.remove(self.flash)
+        if self.flash and pygame.time.get_ticks() - self.flash.time > 10:
+            g.all_sprites.remove(self.flash)
 
     def check_collisions(self, dir):
         if dir == 'x':
-            hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
                 if self.speed_x > 0:
                     self.rect.right = hit_list[0].rect.left
                 elif self.speed_x < 0:
                     self.rect.left = hit_list[0].rect.right
         elif dir == 'y':
-            hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
                 if self.speed_y > 0:
                     self.rect.bottom = hit_list[0].rect.top
                 elif self.speed_y < 0:
@@ -347,21 +344,21 @@ class Player(pygame.sprite.Sprite):
             if now - self.last_update > 75:
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % 7
-                if self.dir == 'l':
-                    self.image = self.frames_running_l[self.current_frame]
-                else:
-                    self.image = self.frames_running_r[self.current_frame]
+                self.image = (
+                    self.frames_running_l[self.current_frame]
+                    if self.dir == 'l'
+                    else self.frames_running_r[self.current_frame]
+                )
+        elif self.speed_y == 0:
+            self.image = (
+                self.frames_standing_l[0]
+                if self.dir == 'l'
+                else self.frames_standing_r[0]
+            )
+        elif self.dir == 'l':
+            self.image = self.frames_jumping_l[0]
         else:
-            if self.speed_y == 0:
-                if self.dir == 'l':
-                    self.image = self.frames_standing_l[0]
-                else:
-                    self.image = self.frames_standing_r[0]
-            else:
-                if self.dir == 'l':
-                    self.image = self.frames_jumping_l[0]
-                else:
-                    self.image = self.frames_jumping_r[0]
+            self.image = self.frames_jumping_r[0]
 
     def go(self, dir):
         # move in the direction pressed
@@ -369,7 +366,7 @@ class Player(pygame.sprite.Sprite):
         if dir == 'l':
             self.dir = 'l'
             self.speed_x = -self.speed
-        if dir == 'r':
+        elif dir == 'r':
             self.dir = 'r'
             self.speed_x = self.speed
 
@@ -393,7 +390,7 @@ class Player(pygame.sprite.Sprite):
 
     def shoot(self):
         if self.dir == 'l':
-            for i in range(NUM_BULLETS):
+            for _ in range(NUM_BULLETS):
                 b = Bullet(self.bullet_frames, self.rect.left+18,
                            self.rect.centery-5, self.dir)
                 g.all_sprites.add(b)
@@ -403,11 +400,10 @@ class Player(pygame.sprite.Sprite):
                 g.flashes.add(flash)
                 g.all_sprites.add(flash)
             self.rect.x += PUSHBACK
-            hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
                 self.rect.x -= PUSHBACK
         else:
-            for i in range(NUM_BULLETS):
+            for _ in range(NUM_BULLETS):
                 b = Bullet(self.bullet_frames, self.rect.right-18,
                            self.rect.centery-5, self.dir)
                 g.all_sprites.add(b)
@@ -417,8 +413,7 @@ class Player(pygame.sprite.Sprite):
                 g.all_sprites.add(flash)
                 g.flashes.add(flash)
             self.rect.x -= PUSHBACK
-            hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
                 self.rect.x += PUSHBACK
         if SOUND:
             self.shoot_snd.play()
@@ -527,8 +522,7 @@ class Mob(pygame.sprite.Sprite):
 
     def check_collisions(self, dir):
         if dir == 'x':
-            hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
                 if self.speed_x > 0:
                     self.rect.right = hit_list[0].rect.left
                     self.dir = 'l'
@@ -537,8 +531,7 @@ class Mob(pygame.sprite.Sprite):
                     self.dir = 'r'
                 self.speed_x *= -1
         elif dir == 'y':
-            hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
                 if self.speed_y > 0:
                     self.rect.bottom = hit_list[0].rect.top
                 elif self.speed_y < 0:

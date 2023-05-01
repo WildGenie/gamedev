@@ -52,24 +52,24 @@ def draw_text(text, size, color, x, y, align="nw"):
     font = pg.font.Font(font_name, size)
     text_surface = font.render(text, True, color).convert_alpha()
     text_rect = text_surface.get_rect()
-    if align == "nw":
-        text_rect.topleft = (x, y)
-    if align == "ne":
-        text_rect.topright = (x, y)
-    if align == "sw":
-        text_rect.bottomleft = (x, y)
-    if align == "se":
-        text_rect.bottomright = (x, y)
-    if align == "n":
-        text_rect.midtop = (x, y)
-    if align == "s":
-        text_rect.midbottom = (x, y)
-    if align == "e":
-        text_rect.midright = (x, y)
-    if align == "w":
-        text_rect.midleft = (x, y)
     if align == "center":
         text_rect.center = (x, y)
+    elif align == "e":
+        text_rect.midright = (x, y)
+    elif align == "n":
+        text_rect.midtop = (x, y)
+    elif align == "ne":
+        text_rect.topright = (x, y)
+    elif align == "nw":
+        text_rect.topleft = (x, y)
+    elif align == "s":
+        text_rect.midbottom = (x, y)
+    elif align == "se":
+        text_rect.bottomright = (x, y)
+    elif align == "sw":
+        text_rect.bottomleft = (x, y)
+    elif align == "w":
+        text_rect.midleft = (x, y)
     screen.blit(text_surface, text_rect)
 
 def draw_grid():
@@ -100,14 +100,10 @@ class Player(pg.sprite.Sprite):
         self.pos += self.vel
         self.rect.center = self.pos
         # prevent sprite from moving off screen
-        if self.pos.x < 0:
-            self.pos.x = 0
-        if self.pos.x > WIDTH:
-            self.pos.x = WIDTH
-        if self.pos.y < 0:
-            self.pos.y = 0
-        if self.pos.y > HEIGHT:
-            self.pos.y = HEIGHT
+        self.pos.x = max(self.pos.x, 0)
+        self.pos.x = min(self.pos.x, WIDTH)
+        self.pos.y = max(self.pos.y, 0)
+        self.pos.y = min(self.pos.y, HEIGHT)
 
     def move_8way(self):
         keystate = pg.key.get_pressed()
@@ -156,10 +152,8 @@ class FlowField:
         frontier = Queue()
         start = vec_t(start)
         frontier.put(start)
-        came_from = {}
         self.distance = {}
-        # self.max_distance = 0
-        came_from[start] = None
+        came_from = {start: None}
         # self.distance[start] = 0
         while not frontier.empty():
             current = frontier.get()
@@ -176,18 +170,13 @@ class FlowField:
     def fill2(self, start, rect):
         self.field = self.empty_field.copy()
         searches = self.cells_for_rect(rect)
-        # print(list(searches))
-        sub_field = {}
-        for c in searches:
-            if c in self.field.keys():
-                sub_field[c] = self.field[c]
+        sub_field = {c: self.field[c] for c in searches if c in self.field.keys()}
         frontier = Queue()
         start = vec_t(start)
         frontier.put(start)
-        came_from = {}
         self.distance = {}
         self.max_distance = 0
-        came_from[start] = None
+        came_from = {start: None}
         self.distance[start] = 0
         while not frontier.empty():
             current = frontier.get()
@@ -205,8 +194,7 @@ class FlowField:
         y1 = rect.y // TILESIZE
         x2 = rect.right // TILESIZE
         y2 = rect.bottom // TILESIZE
-        cells = ((x, y) for x in range(x1, x2 + 1) for y in range(y1, y2 + 1))
-        return cells
+        return ((x, y) for x in range(x1, x2 + 1) for y in range(y1, y2 + 1))
 
     def find_neighbors(self, loc, field):
         neighbors = []
@@ -351,7 +339,7 @@ while running:
             y = mpos[1] // TILESIZE
             if event.button == 1:
                 Wall(x=x, y=y)
-            if event.button == 3:
+            elif event.button == 3:
                 for wall in walls:
                     if wall.rect.collidepoint(mpos):
                         wall.kill()

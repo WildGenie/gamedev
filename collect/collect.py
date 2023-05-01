@@ -58,9 +58,7 @@ class Player(pygame.sprite.Sprite):
         self.accel = pygame.math.Vector2(0, 0)
         # keep accelerating as long as that dir key is down
         keystate = pygame.key.get_pressed()
-        a = 1.5
-        if FPS == 60:
-            a = 0.7
+        a = 0.7 if FPS == 60 else 1.5
         if keystate[pygame.K_LEFT]:
             self.accel.x = -a
         if keystate[pygame.K_RIGHT]:
@@ -165,7 +163,7 @@ mobs = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
 
-for i in range(10):
+for _ in range(10):
     box = Box(random.randrange(5, WIDTH-29),
               random.randrange(5, HEIGHT-29))
     boxes.add(box)
@@ -178,13 +176,14 @@ while running:
     clock.tick(FPS)
     # handle all events
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if (
+            event.type != pygame.QUIT
+            and event.type == pygame.KEYDOWN
+            and event.key == pygame.K_ESCAPE
+            or event.type == pygame.QUIT
+        ):
             pygame.quit()
             sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
 
     # collide w/boxes and remove them
     hit_list = pygame.sprite.spritecollide(player, boxes, True)
@@ -193,7 +192,7 @@ while running:
     # level up, create new boxes and mobs
     if len(boxes) == 0:
         level += 1
-        for i in range((level+1)*5):
+        for _ in range((level+1)*5):
             box = Box(random.randrange(5, WIDTH-29),
                       random.randrange(5, HEIGHT-29))
             boxes.add(box)
@@ -203,7 +202,7 @@ while running:
         player.vel = vec2(0, 0)
         player.pos = vec2(WIDTH/2, HEIGHT/2)
         # create some mobs - start in the corners
-        for i in range(level // 2):
+        for _ in range(level // 2):
             mob = Mob(random.choice([5, WIDTH-29]),
                       random.choice([5, WIDTH-29]))
             mobs.add(mob)
@@ -220,7 +219,7 @@ while running:
     screen.fill(BLACK)
     # uncommment to show FPS (useful for troubleshooting)
     fps_txt = "{:.2f}".format(clock.get_fps())
-    draw_text(str(fps_txt), 18, WIDTH-50, 10)
+    draw_text(fps_txt, 18, WIDTH-50, 10)
     all_sprites.update()
     mobs.update()
     all_sprites.draw(screen)

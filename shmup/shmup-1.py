@@ -45,10 +45,8 @@ class Player(pygame.sprite.Sprite):
         # move the sprite
         self.rect.x += self.speedx
         # stop at the edges
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.left < 0:
-            self.rect.left = 0
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.left = max(self.rect.left, 0)
 
 # initialize pygame
 pygame.init()

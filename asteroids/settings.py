@@ -69,11 +69,17 @@ BOMB_TICK_SOUND = 'sfx_sounds_Blip10.wav'
 
 # rock settings
 START_ROCKS = 3
-ROCK_IMAGES = {}
-ROCK_IMAGES[0] = ['meteorGrey_tiny1.png', 'meteorGrey_tiny2.png']
-ROCK_IMAGES[1] = ['meteorGrey_small1.png', 'meteorGrey_small2.png']
-ROCK_IMAGES[2] = ['meteorGrey_med1.png', 'meteorGrey_med2.png']
-ROCK_IMAGES[3] = ['meteorGrey_big1.png', 'meteorGrey_big2.png', 'meteorGrey_big3.png', 'meteorGrey_big4.png']
+ROCK_IMAGES = {
+    0: ['meteorGrey_tiny1.png', 'meteorGrey_tiny2.png'],
+    1: ['meteorGrey_small1.png', 'meteorGrey_small2.png'],
+    2: ['meteorGrey_med1.png', 'meteorGrey_med2.png'],
+    3: [
+        'meteorGrey_big1.png',
+        'meteorGrey_big2.png',
+        'meteorGrey_big3.png',
+        'meteorGrey_big4.png',
+    ],
+}
 ROCK_SPEED_MIN = 25
 ROCK_SPEED_MAX = 100
 

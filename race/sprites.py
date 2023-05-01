@@ -75,15 +75,15 @@ class Vehicle(pg.sprite.Sprite):
         self.rect.center = self.pos
 
     def draw_debug(self):
-        txt = 'pos:({},{})'.format(int(self.pos.x), int(self.pos.y))
+        txt = f'pos:({int(self.pos.x)},{int(self.pos.y)})'
         self.game.draw_text(txt, 20, WHITE, 10, 10, align="topleft")
-        txt = 'head:{}'.format(int(self.heading))
+        txt = f'head:{int(self.heading)}'
         self.game.draw_text(txt, 20, WHITE, 10, 30, align="topleft")
-        txt = 'vel:({},{}) mag: {}'.format(int(self.vel.x), int(self.vel.y), int(self.vel.length()))
+        txt = f'vel:({int(self.vel.x)},{int(self.vel.y)}) mag: {int(self.vel.length())}'
         self.game.draw_text(txt, 20, WHITE, 10, 50, align="topleft")
-        txt = 'acc:({},{}) mag: {}'.format(int(self.acc.x), int(self.acc.y), int(self.acc.length()))
+        txt = f'acc:({int(self.acc.x)},{int(self.acc.y)}) mag: {int(self.acc.length())}'
         self.game.draw_text(txt, 20, WHITE, 10, 70, align="topleft")
-        txt = 'steer: {}'.format(self.steering)
+        txt = f'steer: {self.steering}'
         self.game.draw_text(txt, 20, WHITE, 10, 90, align="topleft")
 
         scale = 0.5

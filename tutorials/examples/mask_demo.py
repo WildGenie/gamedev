@@ -99,7 +99,7 @@ while running:
     elif fill_on:
         draw_mask(p2)
         draw_mask(p1)
-    elif not outline_on and not fill_on:
+    else:
         p1.image = bunny_image.copy()
         p2.image = enemy_image.copy()
     # h = p1.mask.overlap_area(p2.mask, (p1.rect.x-p2.rect.x, p1.rect.y-p2.rect.y))
@@ -110,7 +110,7 @@ while running:
     pg.draw.rect(screen, WHITE, p1.rect, 1)
     pg.draw.rect(screen, WHITE, p2.rect, 1)
     screen.blit(p2.image, p2.rect)
-    draw_text("Hit: " + str(h), 18, WHITE, WIDTH / 2, 5)
+    draw_text(f"Hit: {str(h)}", 18, WHITE, WIDTH / 2, 5)
     if h:
         px = (h[0] + p1.rect.x, h[1] + p1.rect.y)
         pg.draw.circle(screen, CYAN, px, 4)

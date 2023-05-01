@@ -65,14 +65,10 @@ class Mob(pg.sprite.Sprite):
         if self.vel.length() > MAX_SPEED:
             self.vel.scale_to_length(MAX_SPEED)
         self.pos += self.vel
-        if self.pos.x > WIDTH:
-            self.pos.x = WIDTH
-        if self.pos.x < 0:
-            self.pos.x = 0
-        if self.pos.y > HEIGHT:
-            self.pos.y = HEIGHT
-        if self.pos.y < 0:
-            self.pos.y = 0
+        self.pos.x = min(self.pos.x, WIDTH)
+        self.pos.x = max(self.pos.x, 0)
+        self.pos.y = min(self.pos.y, HEIGHT)
+        self.pos.y = max(self.pos.y, 0)
         self.rect.center = self.pos
 
     def draw_vectors(self):

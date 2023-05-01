@@ -41,8 +41,7 @@ class SquareGrid:
     def find_neighbors(self, node):
         neighbors = [node + connection for connection in self.connections]
         neighbors = filter(self.in_bounds, neighbors)
-        neighbors = filter(self.passable, neighbors)
-        return neighbors
+        return filter(self.passable, neighbors)
 
 class WeightedGrid(SquareGrid):
     def __init__(self, width, height):
@@ -115,13 +114,9 @@ goal = vec(20, 0)
 
 frontier = PriorityQueue()
 frontier.put(vec2int(start), 0)
-path = {}
-cost = {}
-visited = []
-visited.append(start)
-path[vec2int(start)] = None
-cost[vec2int(start)] = 0
-
+visited = [start]
+path = {vec2int(start): None}
+cost = {vec2int(start): 0}
 paused = True
 running = True
 done = False

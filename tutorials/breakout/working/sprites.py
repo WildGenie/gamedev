@@ -22,10 +22,8 @@ class Paddle(pg.sprite.Sprite):
         # absolute position - paddle follows mouse
         pos = pg.mouse.get_pos()
         self.pos.x = pos[0]
-        if self.pos.x > WIDTH - PADDLE_WIDTH / 2:
-            self.pos.x = WIDTH - PADDLE_WIDTH / 2
-        if self.pos.x < PADDLE_WIDTH / 2:
-            self.pos.x = PADDLE_WIDTH / 2
+        self.pos.x = min(self.pos.x, WIDTH - PADDLE_WIDTH / 2)
+        self.pos.x = max(self.pos.x, PADDLE_WIDTH / 2)
         self.rect.center = self.pos
 
     def update_acc(self):
@@ -42,10 +40,8 @@ class Paddle(pg.sprite.Sprite):
         self.acc.x += self.vel.x * PADDLE_FRICTION
         self.vel += self.acc
         self.pos += self.vel + 0.5 * self.acc
-        if self.pos.x > WIDTH - PADDLE_WIDTH / 2:
-            self.pos.x = WIDTH - PADDLE_WIDTH / 2
-        if self.pos.x < PADDLE_WIDTH / 2:
-            self.pos.x = PADDLE_WIDTH / 2
+        self.pos.x = min(self.pos.x, WIDTH - PADDLE_WIDTH / 2)
+        self.pos.x = max(self.pos.x, PADDLE_WIDTH / 2)
         self.rect.center = self.pos
 
 class Ball(pg.sprite.Sprite):

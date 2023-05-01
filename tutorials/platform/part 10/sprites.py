@@ -77,14 +77,13 @@ class Player(pg.sprite.Sprite):
 
     def animate(self):
         now = pg.time.get_ticks()
-        if not self.jumping and not self.walking:
-            if now - self.last_update > 350:
-                self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
-                bottom = self.rect.bottom
-                self.image = self.standing_frames[self.current_frame]
-                self.rect = self.image.get_rect()
-                self.rect.bottom = bottom
+        if not self.jumping and not self.walking and now - self.last_update > 350:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+            bottom = self.rect.bottom
+            self.image = self.standing_frames[self.current_frame]
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
 
 class Platform(pg.sprite.Sprite):
     def __init__(self, x, y, w, h):

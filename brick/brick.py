@@ -24,7 +24,7 @@ class Game:
         self.lose_sound = pg.mixer.Sound(path.join(sound_folder, 'lose.wav'))
         self.brick_sounds = []
         for i in range(3):
-            file = 'brick{}.wav'.format(i)
+            file = f'brick{i}.wav'
             self.brick_sounds.append(pg.mixer.Sound(path.join(sound_folder, file)))
         
     def new(self):

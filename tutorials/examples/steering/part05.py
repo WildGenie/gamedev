@@ -104,8 +104,7 @@ class Mob(pg.sprite.Sprite):
         ahead2 = self.pos + self.vel.normalize() * dyn_length / 2
         self.a = vec(ahead)
         self.a2 = vec(ahead2)
-        most_threatening = self.find_most_threatening(group, ahead, ahead2)
-        if most_threatening:
+        if most_threatening := self.find_most_threatening(group, ahead, ahead2):
             steer = ahead - most_threatening.rect.center
             steer.normalize_ip()
             steer.scale_to_length(MAX_FORCE)
@@ -156,7 +155,7 @@ all_sprites = pg.sprite.Group()
 walls = pg.sprite.Group()
 Mob()
 
-for i in range(8):
+for _ in range(8):
     Wall()
 
 # for y in range(0, HEIGHT, 32):
@@ -189,7 +188,7 @@ while running:
             y = mpos[1] // 32
             if event.button == 1:
                 Wall(x=x, y=y, s=32)
-            if event.button == 3:
+            elif event.button == 3:
                 for sprite in all_sprites:
                     if sprite.rect.collidepoint(mpos):
                         sprite.kill()

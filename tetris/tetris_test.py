@@ -47,7 +47,7 @@ class Piece:
     def __init__(self):
         self.shape = random.choice(list(SHAPES.keys()))
         self.rotation = random.randrange(len(SHAPES[self.shape]))
-        self.x = int(BOARDWIDTH / 2) - int(5 / 2)
+        self.x = int(BOARDWIDTH / 2) - 5 // 2
         self.y = -1
         self.color = random.randrange(1, len(COLORS))
     
@@ -72,9 +72,7 @@ class Piece:
         
 class Board:
     def __init__(self):
-        self.board = []
-        for i in range(BOARDHEIGHT):
-            self.board.append([0] * BOARDWIDTH)
+        self.board = [[0] * BOARDWIDTH for _ in range(BOARDHEIGHT)]
         self.piece = Piece()
         self.next = Piece()
         self.score = 0
@@ -86,10 +84,22 @@ class Board:
         rect = pg.Rect(SIDEMARGIN, TOPMARGIN, BOARDWIDTH * BLOCKSIZE, BOARDHEIGHT * BLOCKSIZE)
         pg.draw.rect(screen, GREY, rect, 5)
         # show score
-        draw_text(screen, 'Level: '+str(self.level), 32, WHITE, 
-                  BOARDWIDTH * BLOCKSIZE + SIDEMARGIN + 10, 100)
-        draw_text(screen, 'Lines: '+str(self.score), 32, WHITE, 
-                  BOARDWIDTH * BLOCKSIZE + SIDEMARGIN + 10, 130)
+        draw_text(
+            screen,
+            f'Level: {str(self.level)}',
+            32,
+            WHITE,
+            BOARDWIDTH * BLOCKSIZE + SIDEMARGIN + 10,
+            100,
+        )
+        draw_text(
+            screen,
+            f'Lines: {str(self.score)}',
+            32,
+            WHITE,
+            BOARDWIDTH * BLOCKSIZE + SIDEMARGIN + 10,
+            130,
+        )
         # show next
         draw_text(screen, 'Next:', 28, WHITE, BOARDWIDTH * BLOCKSIZE + SIDEMARGIN + 10, 200)
         box_size = BLOCKSIZE * 5
@@ -137,14 +147,10 @@ class Board:
         self.drop_piece()
         
     def game_over(self):
-        if sum(self.board[0]) > 0 or sum(self.board[1]) > 0:
-            return True
-        return False
+        return sum(self.board[0]) > 0 or sum(self.board[1]) > 0
         
     def can_move(self, dx, dy):
-        if self.collide_with_board(dx=dx, dy=dy):
-            return False
-        return True
+        return not self.collide_with_board(dx=dx, dy=dy)
         
     def move_piece(self, dx=0, dy=0):
         if self.can_move(dx, dy):
@@ -161,8 +167,7 @@ class Board:
         
     def try_rotate(self):
         self.piece.rotate('r')
-        collide = self.collide_with_board(dx=0, dy=0)
-        if collide:
+        if collide := self.collide_with_board(dx=0, dy=0):
             self.piece.rotate('l')
         
     def delete_lines(self):

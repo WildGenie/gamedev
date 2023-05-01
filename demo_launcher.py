@@ -38,10 +38,9 @@ class MenuItem(pygame.font.Font):
 
     def is_selected_mouse(self):
         posx, posy = pygame.mouse.get_pos()
-        if (posx >= self.posx and posx <= self.posx + self.width) and \
-           (posy >= self.posy and posy <= self.posy + self.height):
-            return True
-        return False
+        return (posx >= self.posx and posx <= self.posx + self.width) and (
+            posy >= self.posy and posy <= self.posy + self.height
+        )
 
 class GameMenu:
     def __init__(self, game, title, items, bg_color=(0, 0, 0), bg_image=None,

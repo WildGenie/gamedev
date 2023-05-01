@@ -62,13 +62,10 @@ class SquareGrid:
     def neighbors(self, loc):
         x, y = loc
         results = [(x + 1, y), (x, y - 1), (x - 1, y), (x, y + 1)]
-        if test_h:
-            # aesthetics
-            if (x + y) % 2:
-                results.reverse()
+        if test_h and (x + y) % 2:
+            results.reverse()
         results = filter(self.in_bounds, results)
-        results = filter(self.passable, results)
-        return results
+        return filter(self.passable, results)
 
 def draw_grid(grid, paths, dist):
     for x in range(0, WIDTH, TILESIZE):
@@ -88,15 +85,9 @@ def draw_grid(grid, paths, dist):
             else:
                 x1, y1 = paths[loc]
                 if x == x1:
-                    if y > y1:
-                        dir = 'Up'
-                    else:
-                        dir = 'Down'
+                    dir = 'Up' if y > y1 else 'Down'
                 elif y == y1:
-                    if x > x1:
-                        dir = 'Left'
-                    else:
-                        dir = 'Right'
+                    dir = 'Left' if x > x1 else 'Right'
                 screen.blit(arrows[dir], (x * TILESIZE, y * TILESIZE))
     else:
         for loc in dist:
@@ -111,9 +102,7 @@ def draw_grid(grid, paths, dist):
 def breadth_first_search1(graph, start):
     frontier = Queue()
     frontier.put(start)
-    visited = {}
-    visited[start] = True
-
+    visited = {start: True}
     while not frontier.empty():
         current = frontier.get()
         print("Visiting %r" % current)
@@ -125,11 +114,8 @@ def breadth_first_search1(graph, start):
 def breadth_first_search2(graph, start):
     frontier = Queue()
     frontier.put(start)
-    came_from = {}
-    came_from[start] = None
-    distance = {}
-    distance[start] = 0
-
+    came_from = {start: None}
+    distance = {start: 0}
     while not frontier.empty():
         current = frontier.get()
         for next in graph.neighbors(current):
@@ -160,7 +146,7 @@ home_img = pg.transform.scale(home_img, (int(TILESIZE / 1.2), int(TILESIZE / 1.2
 home_img.fill((0, 255, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 arrows = {}
 for d in ['Up', 'Down', 'Right', 'Left']:
-    fname = 'arrow%s.png' % d
+    fname = f'arrow{d}.png'
     img = pg.image.load(path.join(icon_folder, fname)).convert_alpha()
     arrows[d] = pg.transform.scale(img, (int(TILESIZE / 1.2), int(TILESIZE / 1.2)))
 

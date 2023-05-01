@@ -78,12 +78,12 @@ class Game:
         # game over/continue
         pass
 
-    def draw_text(surf, text, size, x, y):
+    def draw_text(self, text, size, x, y):
         font = pg.font.Font(font_name, size)
         text_surface = font.render(text, True, WHITE)
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x, y)
-        surf.blit(text_surface, text_rect)
+        self.blit(text_surface, text_rect)
 
 g = Game()
 g.show_start_screen()

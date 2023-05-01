@@ -70,11 +70,11 @@ def generate_field():
     for wall in walls:
         wallpos = vec(wall.rect.x // TILESIZE, wall.rect.y // TILESIZE)
         field[(wallpos.x, wallpos.y)] = vec(0, 0)
-        if wallpos.x - 1 >= 0:
+        if wallpos.x >= 1:
             field[(wallpos.x - 1, wallpos.y)] = vec(0, -1)
         if wallpos.x + 1 <= GRIDWIDTH:
             field[(wallpos.x + 1, wallpos.y)] = vec(0, 1)
-        if wallpos.y - 1 >= 0:
+        if wallpos.y >= 1:
             field[(wallpos.x, wallpos.y - 1)] = vec(1, 0)
         if wallpos.y + 1 <= GRIDHEIGHT:
             field[(wallpos.x, wallpos.y + 1)] = vec(-1, 0)
@@ -211,7 +211,7 @@ while running:
             y = mpos[1] // 32
             if event.button == 1:
                 Wall(x=x * 32, y=y * 32)
-            if event.button == 3:
+            elif event.button == 3:
                 for sprite in all_sprites:
                     if sprite.rect.collidepoint(mpos):
                         sprite.kill()

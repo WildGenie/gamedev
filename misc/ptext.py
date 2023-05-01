@@ -59,7 +59,7 @@ def wrap(text, fontname, fontsize, width=None, widthem=None):
 	# width, or at the first space character on the line (after leading spaces), regardless of
 	# width.
 	for text in texts:
-		text = text.rstrip() + " "
+		text = f"{text.rstrip()} "
 		# Preserve leading spaces.
 		a = len(text) - len(text.lstrip())
 		# At any time, a is the leftmost index you can legally split a line (text[:a]).
@@ -72,8 +72,7 @@ def wrap(text, fontname, fontsize, width=None, widthem=None):
 				lines.append(text[:a])
 				text = text[a+1:]
 				a = text.index(" ")
-		text = text[:-1]
-		if text:
+		if text := text[:-1]:
 			lines.append(text)
 	return lines
 

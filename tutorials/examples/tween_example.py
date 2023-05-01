@@ -23,24 +23,24 @@ def draw_text(text, size, color, x, y, align="nw"):
     font = pg.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
-    if align == "nw":
-        text_rect.topleft = (x, y)
-    if align == "ne":
-        text_rect.topright = (x, y)
-    if align == "sw":
-        text_rect.bottomleft = (x, y)
-    if align == "se":
-        text_rect.bottomright = (x, y)
-    if align == "n":
-        text_rect.midtop = (x, y)
-    if align == "s":
-        text_rect.midbottom = (x, y)
-    if align == "e":
-        text_rect.midright = (x, y)
-    if align == "w":
-        text_rect.midleft = (x, y)
     if align == "center":
         text_rect.center = (x, y)
+    elif align == "e":
+        text_rect.midright = (x, y)
+    elif align == "n":
+        text_rect.midtop = (x, y)
+    elif align == "ne":
+        text_rect.topright = (x, y)
+    elif align == "nw":
+        text_rect.topleft = (x, y)
+    elif align == "s":
+        text_rect.midbottom = (x, y)
+    elif align == "se":
+        text_rect.bottomright = (x, y)
+    elif align == "sw":
+        text_rect.bottomleft = (x, y)
+    elif align == "w":
+        text_rect.midleft = (x, y)
     screen.blit(text_surface, text_rect)
 
 pg.init()
@@ -67,7 +67,7 @@ class Box(pg.sprite.Sprite):
 ITERATIONS = 400
 factor = 0
 func = next(tween_func)
-draw_text("Func: {}".format(func.__name__), 22, WHITE, 795, 5, align="ne")
+draw_text(f"Func: {func.__name__}", 22, WHITE, 795, 5, align="ne")
 b = Box()
 
 running = True
@@ -82,7 +82,7 @@ while running:
             if event.key == pg.K_SPACE:
                 func = next(tween_func)
                 screen.fill((0, 0, 0))
-                draw_text("Func: {}".format(func.__name__), 22, WHITE, 795, 5, align="ne")
+                draw_text(f"Func: {func.__name__}", 22, WHITE, 795, 5, align="ne")
                 b = Box()
 
     b.update(dt)

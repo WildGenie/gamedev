@@ -10,18 +10,17 @@ class SpritesheetWithXML:
     # xml filename should match png filename (Kenney format)
     # TODO: improve to work with other data formats
     def __init__(self, filename):
-        self.spritesheet = pg.image.load(filename + '.png').convert_alpha()
+        self.spritesheet = pg.image.load(f'{filename}.png').convert_alpha()
         # load XML (kenney format) if it exists
-        if path.isfile(filename + '.xml'):
-            tree = ET.parse(filename + '.xml')
+        if path.isfile(f'{filename}.xml'):
+            tree = ET.parse(f'{filename}.xml')
             self.map = {}
             # read through XML and pull out image locations using the following structure:
             # self.map['image name'] = {'x':x, 'y':y, 'w':w, 'h':h}
             for node in tree.iter():
                 if node.attrib.get('name'):
                     name = node.attrib.get('name')
-                    self.map[name] = {}
-                    self.map[name]['x'] = int(node.attrib.get('x'))
+                    self.map[name] = {'x': int(node.attrib.get('x'))}
                     self.map[name]['y'] = int(node.attrib.get('y'))
                     self.map[name]['w'] = int(node.attrib.get('width'))
                     self.map[name]['h'] = int(node.attrib.get('height'))
@@ -77,8 +76,7 @@ class TiledMap:
         for layer in self.tmxdata.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, gid, in layer:
-                    tile = ti(gid)
-                    if tile:
+                    if tile := ti(gid):
                         surface.blit(tile, (x * self.tmxdata.tilewidth,
                                             y * self.tmxdata.tileheight))
 

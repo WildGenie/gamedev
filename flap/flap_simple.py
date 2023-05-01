@@ -87,10 +87,7 @@ class Pipe(pygame.sprite.Sprite):
 
     def offscreen(self):
         # test to see if the pipe has moved offscreen
-        if self.rect.right < 0:
-            return True
-        else:
-            return False
+        return self.rect.right < 0
 
 def new_pipe():
     # create a new pair of pipes segments(upper and lower)
@@ -174,7 +171,7 @@ while True:
         screen.fill(BGCOLOR)
         active_sprite_list.update()
         active_sprite_list.draw(screen)
-        score_text = 'Score: %s' % int(score)
+        score_text = f'Score: {int(score)}'
         draw_text(score_text, 18, 40, 10)
         # after drawing, flip the display
         pygame.display.flip()

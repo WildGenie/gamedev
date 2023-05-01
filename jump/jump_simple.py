@@ -77,7 +77,7 @@ class Player(pygame.sprite.Sprite):
         # move in the direction pressed
         if dir == 'l':
             self.speed_x = -self.speed
-        if dir == 'r':
+        elif dir == 'r':
             self.speed_x = self.speed
 
 class Platform(pygame.sprite.Sprite):
@@ -94,9 +94,7 @@ class Platform(pygame.sprite.Sprite):
 
     def offscreen(self):
         # check to see if the platform has moved off the bottom of the screen
-        if self.rect.top > HEIGHT + 10:
-            return True
-        return False
+        return self.rect.top > HEIGHT + 10
 
 def draw_text(text, size, x, y):
     # utility function to draw text at a given location
@@ -197,7 +195,7 @@ while running:
     screen.fill(BGCOLOR)
     all_sprite_list.update()
     all_sprite_list.draw(screen)
-    score_text = 'Score: %s' % int(score)
+    score_text = f'Score: {int(score)}'
     draw_text(score_text, 18, 10, 10)
     # after drawing, flip the display
     pygame.display.flip()

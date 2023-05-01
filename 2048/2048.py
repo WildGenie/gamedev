@@ -104,10 +104,7 @@ class Board:
             for tile in row:
                 if tile.value == 0:
                     empty_spaces += 1
-        if empty_spaces == 0:
-            return True
-        else:
-            return False
+        return empty_spaces == 0
 
     def move_left(self):
         # move the board to the left

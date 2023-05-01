@@ -123,7 +123,7 @@ class Mob(pygame.sprite.Sprite):
             return False
 
 def show_score(score):
-    text = 'Score: %s' % score
+    text = f'Score: {score}'
     font_name = pygame.font.match_font('arial')
     font = pygame.font.Font(font_name, 18)
     text_surface = font.render(text, True, WHITE)
@@ -153,7 +153,7 @@ while True:
     player = Player()
     active_sprite_list.add(player)
     # create some mobs
-    for i in range(12):
+    for _ in range(12):
         mob = Mob()
         active_sprite_list.add(mob)
         mob_sprite_list.add(mob)

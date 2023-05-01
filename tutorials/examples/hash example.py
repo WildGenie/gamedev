@@ -32,24 +32,24 @@ def draw_text(text, size, color, x, y, align="nw"):
     font = pg.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
-    if align == "nw":
-        text_rect.topleft = (x, y)
-    if align == "ne":
-        text_rect.topright = (x, y)
-    if align == "sw":
-        text_rect.bottomleft = (x, y)
-    if align == "se":
-        text_rect.bottomright = (x, y)
-    if align == "n":
-        text_rect.midtop = (x, y)
-    if align == "s":
-        text_rect.midbottom = (x, y)
-    if align == "e":
-        text_rect.midright = (x, y)
-    if align == "w":
-        text_rect.midleft = (x, y)
     if align == "center":
         text_rect.center = (x, y)
+    elif align == "e":
+        text_rect.midright = (x, y)
+    elif align == "n":
+        text_rect.midtop = (x, y)
+    elif align == "ne":
+        text_rect.topright = (x, y)
+    elif align == "nw":
+        text_rect.topleft = (x, y)
+    elif align == "s":
+        text_rect.midbottom = (x, y)
+    elif align == "se":
+        text_rect.bottomright = (x, y)
+    elif align == "sw":
+        text_rect.bottomleft = (x, y)
+    elif align == "w":
+        text_rect.midleft = (x, y)
     screen.blit(text_surface, text_rect)
 
 def draw_grid():
@@ -96,8 +96,7 @@ class SpatialHash:
         y1 = rect.y // self.cellsize
         x2 = rect.right // self.cellsize
         y2 = rect.bottom // self.cellsize
-        cells = ((x, y) for x in range(x1, x2 + 1) for y in range(y1, y2 + 1))
-        return cells
+        return ((x, y) for x in range(x1, x2 + 1) for y in range(y1, y2 + 1))
 
     def _remove(self, cell, item):
         self.d[cell].remove(item)
@@ -143,14 +142,10 @@ class Player(pg.sprite.Sprite):
         self.rect.x += self.vx
         self.rect.y += self.vy
         # prevent sprite from moving off screen
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+        self.rect.left = max(self.rect.left, 0)
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.top = max(self.rect.top, 0)
+        self.rect.bottom = min(self.rect.bottom, HEIGHT)
 
     def move_8way(self):
         keystate = pg.key.get_pressed()
@@ -190,7 +185,7 @@ game_hash = SpatialHash(cellsize=TILESIZE)
 mobs = pg.sprite.Group()
 player = Player()
 all_sprites.add(player)
-for i in range(NUM_MOBS):
+for _ in range(NUM_MOBS):
     game_hash.add_item(Mob())
 draw_hash = False
 use_hash = True
@@ -217,9 +212,9 @@ while running:
 
     # Update
     player.update()
-    if not paused and use_hash:
-        game_hash = SpatialHash(cellsize=TILESIZE)
     if not paused:
+        if use_hash:
+            game_hash = SpatialHash(cellsize=TILESIZE)
         for mob in mobs:
             mob.update()
             if use_hash:
@@ -228,13 +223,10 @@ while running:
         nearby_mobs = pg.sprite.Group()
         nearby_mobs.add(game_hash.pot_coll(player.rect.inflate(30, 30)))
         hits = pg.sprite.spritecollide(player, nearby_mobs, False)
-        for hit in hits:
-            hit.kill()
     else:
         hits = pg.sprite.spritecollide(player, mobs, False)
-        for hit in hits:
-            hit.kill()
-
+    for hit in hits:
+        hit.kill()
     # Draw / render
     pg.display.set_caption("{:.2f}".format(clock.get_fps()))
     screen.fill(BLACK)
