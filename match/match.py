@@ -85,9 +85,7 @@ class Board:
                     if row == ROWS - 1:
                         row += 1
                     if length >= 3:
-                        match_cells = []
-                        for clear_row in range(row-length, row):
-                            match_cells.append((clear_row, col))
+                        match_cells = [(clear_row, col) for clear_row in range(row-length, row)]
                         match_list.append(match_cells)
                     length = 1
         # now check the rows
@@ -101,9 +99,7 @@ class Board:
                     if col == COLS - 1:
                         col += 1
                     if length >= 3:
-                        match_cells = []
-                        for clear_col in range(col-length, col):
-                            match_cells.append((row, clear_col))
+                        match_cells = [(row, clear_col) for clear_col in range(col-length, col)]
                         match_list.append(match_cells)
                     length = 1
 
@@ -125,7 +121,7 @@ class Board:
         score_text = str(score)
         y = BORDER + loc[0] * (CELLWIDTH + MARGIN)
         x = BORDER + loc[1] * (CELLHEIGHT + MARGIN)
-        for i in range(10):
+        for _ in range(10):
             draw_text(score_text, 24, x, y, BLACK)
             pygame.display.update()
             clock.tick(FPS)
@@ -153,20 +149,19 @@ class Board:
         # if we click outside the board, select nothing
         if click_col >= COLS or click_row >= ROWS:
             self.selected = None
-        else:
-            if not self.selected:
-                self.selected = (click_row, click_col)
-            elif self.selected[0] == click_row and self.selected[1] == click_col:
+        elif not self.selected:
+            self.selected = (click_row, click_col)
+        elif self.selected[0] == click_row and self.selected[1] == click_col:
+            self.selected = None
+        elif not self.animating:
+            if self.adjacent(self.selected, (click_row, click_col)):
+                self.swap(self.selected, (click_row, click_col))
                 self.selected = None
-            elif not self.animating:
-                if self.adjacent(self.selected, (click_row, click_col)):
-                    self.swap(self.selected, (click_row, click_col))
-                    self.selected = None
 
     def adjacent(self, loc1, loc2):
-        if (loc1[0] == loc2[0] and abs(loc1[1]-loc2[1]) == 1) or (loc1[1] == loc2[1] and abs(loc1[0]-loc2[0]) == 1):
-            return True
-        return False
+        return (loc1[0] == loc2[0] and abs(loc1[1] - loc2[1]) == 1) or (
+            loc1[1] == loc2[1] and abs(loc1[0] - loc2[0]) == 1
+        )
 
     def swap(self, loc1, loc2):
         self.board[loc1[0]][loc1[1]], self.board[loc2[0]][loc2[1]] = self.board[loc2[0]][loc2[1]], self.board[loc1[0]][loc1[1]]
@@ -197,19 +192,18 @@ while running:
     # check for all your events
     for event in pygame.event.get():
         # this one checks for the window being closed
-        if event.type == pygame.QUIT:
+        if (
+            event.type != pygame.QUIT
+            and event.type == pygame.KEYDOWN
+            and event.key == pygame.K_ESCAPE
+            or event.type == pygame.QUIT
+        ):
             pygame.quit()
             sys.exit()
-        # now check for keypresses
-        elif event.type == pygame.KEYDOWN:
-            # this one quits if the player presses Esc
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
-            # add any other key events here
-            # if event.key == pygame.K_SPACE:
-            #     board.fill_blanks()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+        elif (
+            event.type != pygame.KEYDOWN
+            and event.type == pygame.MOUSEBUTTONDOWN
+        ):
             board.clicked(event.pos)
 
     ##### Game logic goes here  #########
@@ -219,7 +213,7 @@ while running:
     ##### Draw/update screen #########
     screen.fill(BGCOLOR)
     board.draw()
-    score_text = 'Score: %s' % board.score
+    score_text = f'Score: {board.score}'
     draw_text(score_text, 18, BORDER, HEIGHT-30)
     # after drawing, flip the display
     pygame.display.flip()

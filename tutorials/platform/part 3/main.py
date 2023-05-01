@@ -44,8 +44,7 @@ class Game:
     def update(self):
         # Game Loop - Update
         self.all_sprites.update()
-        hits = pg.sprite.spritecollide(self.player, self.platforms, False)
-        if hits:
+        if hits := pg.sprite.spritecollide(self.player, self.platforms, False):
             self.player.pos.y = hits[0].rect.top
             self.player.vel.y = 0
 

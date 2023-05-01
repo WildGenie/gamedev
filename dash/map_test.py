@@ -29,14 +29,12 @@ class Renderer:
         for layer in self.tmxdata.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, gid in layer:
-                    tile = gt(gid)
-                    if tile:
+                    if tile := gt(gid):
                         surface.blit(tile, (x*tw, y*th))
             elif isinstance(layer, pytmx.TiledObjectGroup):
                 pass
             elif isinstance(layer, pytmx.TiledImageLayer):
-                image = gt(layer.gid)
-                if image:
+                if image := gt(layer.gid):
                     surface.blit(image, (0, 0))
 
     def make_map(self):
@@ -60,11 +58,10 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            if not self.jumping:
-                # self.rect.y -= 1
-                self.vy = -16
-                self.jumping = True
+        if keys[pygame.K_SPACE] and not self.jumping:
+            # self.rect.y -= 1
+            self.vy = -16
+            self.jumping = True
 
         self.vy += 1
         # self.rect.x += self.vx
@@ -77,8 +74,7 @@ class Player(pygame.sprite.Sprite):
         #         self.rect.left = hit[0].rect.right
         #         self.vx = 0
         self.rect.y += self.vy
-        hit = pygame.sprite.spritecollide(self, self.game.blockers, False)
-        if hit:
+        if hit := pygame.sprite.spritecollide(self, self.game.blockers, False):
             if self.vy > 0:
                 self.rect.bottom = hit[0].rect.top
                 self.vy = 0
@@ -158,11 +154,13 @@ class Game:
 
     def events(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if (
+                event.type != pygame.QUIT
+                and event.type == pygame.KEYDOWN
+                and event.key == pygame.K_ESCAPE
+                or event.type == pygame.QUIT
+            ):
                 self.quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.quit()
 
     def show_start_screen(self):
         pass

@@ -32,7 +32,7 @@ class Coord:
         return self.x == other.x and self.y == other.y
 
     def __repr__(self):
-        return '({}, {})'.format(self.x, self.y)
+        return f'({self.x}, {self.y})'
 
 class Tilemap:
     def __init__(self, width, height, wall_img):

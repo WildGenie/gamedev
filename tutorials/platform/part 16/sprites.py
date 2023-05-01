@@ -49,9 +49,8 @@ class Player(pg.sprite.Sprite):
         self.jump_frame.set_colorkey(BLACK)
 
     def jump_cut(self):
-        if self.jumping:
-            if self.vel.y < -3:
-                self.vel.y = -3
+        if self.jumping and self.vel.y < -3:
+            self.vel.y = -3
 
     def jump(self):
         # jump only if standing on a platform
@@ -89,31 +88,26 @@ class Player(pg.sprite.Sprite):
 
     def animate(self):
         now = pg.time.get_ticks()
-        if self.vel.x != 0:
-            self.walking = True
-        else:
-            self.walking = False
+        self.walking = self.vel.x != 0
         # show walk animation
-        if self.walking:
-            if now - self.last_update > 180:
-                self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
-                bottom = self.rect.bottom
-                if self.vel.x > 0:
-                    self.image = self.walk_frames_r[self.current_frame]
-                else:
-                    self.image = self.walk_frames_l[self.current_frame]
-                self.rect = self.image.get_rect()
-                self.rect.bottom = bottom
+        if self.walking and now - self.last_update > 180:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
+            bottom = self.rect.bottom
+            if self.vel.x > 0:
+                self.image = self.walk_frames_r[self.current_frame]
+            else:
+                self.image = self.walk_frames_l[self.current_frame]
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
         # show idle animation
-        if not self.jumping and not self.walking:
-            if now - self.last_update > 350:
-                self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
-                bottom = self.rect.bottom
-                self.image = self.standing_frames[self.current_frame]
-                self.rect = self.image.get_rect()
-                self.rect.bottom = bottom
+        if not self.jumping and not self.walking and now - self.last_update > 350:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+            bottom = self.rect.bottom
+            self.image = self.standing_frames[self.current_frame]
+            self.rect = self.image.get_rect()
+            self.rect.bottom = bottom
 
 class Platform(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -176,10 +170,7 @@ class Mob(pg.sprite.Sprite):
         if self.vy > 3 or self.vy < -3:
             self.dy *= -1
         center = self.rect.center
-        if self.dy < 0:
-            self.image = self.image_up
-        else:
-            self.image = self.image_down
+        self.image = self.image_up if self.dy < 0 else self.image_down
         self.rect = self.image.get_rect()
         self.rect.center = center
         self.rect.y += self.vy

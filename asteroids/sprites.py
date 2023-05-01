@@ -13,19 +13,18 @@ class SpritesheetWithXML:
     # xml filename should match png filename (Kenney format)
     # TODO: improve to work with other data formats
     def __init__(self, filename):
-        self.spritesheet = pg.image.load(filename + '.png').convert_alpha()
+        self.spritesheet = pg.image.load(f'{filename}.png').convert_alpha()
         # self.spritesheet.set_colorkey(BLACK)
         # load XML (kenney format) if it exists
-        if path.isfile(filename + '.xml'):
-            tree = ET.parse(filename + '.xml')
+        if path.isfile(f'{filename}.xml'):
+            tree = ET.parse(f'{filename}.xml')
             self.map = {}
             # read through XML and pull out image locations using the following structure:
             # self.map['image name'] = {'x':x, 'y':y, 'w':w, 'h':h}
             for node in tree.iter():
                 if node.attrib.get('name'):
                     name = node.attrib.get('name')
-                    self.map[name] = {}
-                    self.map[name]['x'] = int(node.attrib.get('x'))
+                    self.map[name] = {'x': int(node.attrib.get('x'))}
                     self.map[name]['y'] = int(node.attrib.get('y'))
                     self.map[name]['w'] = int(node.attrib.get('width'))
                     self.map[name]['h'] = int(node.attrib.get('height'))
@@ -127,12 +126,10 @@ class Player(pg.sprite.Sprite):
     def get_keys(self):
         # TODO: add WASD?
         keystate = pg.key.get_pressed()
-        if keystate[pg.K_LEFT]:
-            if not self.beam_firing:
-                self.rot_speed = PLAYER_ROT_SPEED
-        if keystate[pg.K_RIGHT]:
-            if not self.beam_firing:
-                self.rot_speed = -PLAYER_ROT_SPEED
+        if keystate[pg.K_LEFT] and not self.beam_firing:
+            self.rot_speed = PLAYER_ROT_SPEED
+        if keystate[pg.K_RIGHT] and not self.beam_firing:
+            self.rot_speed = -PLAYER_ROT_SPEED
         if keystate[pg.K_UP]:
             self.acc = vec(0, -self.thrust_power).rotate(-self.rot)
             self.engine_emitter.count = 50
@@ -148,8 +145,6 @@ class Player(pg.sprite.Sprite):
             self.drop_bomb()
         elif self.wpn2_type == 'beam':
             self.fire_beam()
-        elif self.wpn2_type is None:
-            pass
             # TODO: play "click" sound
 
     def fire_beam(self):

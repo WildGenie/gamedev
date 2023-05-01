@@ -171,8 +171,7 @@ class Mob(pg.sprite.Sprite):
 
     def cohesion(self, a_pos):
         desired = a_pos
-        steer = self.seek(desired)
-        return steer
+        return self.seek(desired)
 
     def get_averages(self):
         count = 0
@@ -237,7 +236,7 @@ predators = pg.sprite.Group()
 # p1 = Predator()
 p1 = Player()
 all_sprites.add(p1)
-for i in range(NUM_MOBS):
+for _ in range(NUM_MOBS):
     Mob()
 paused = False
 show_vectors = False
@@ -292,7 +291,7 @@ while running:
     draw_text("A: {:.1f}".format(ALIGN_WEIGHT), 18, WHITE, 5, 5)
     draw_text("S: {:.1f}".format(SEPARATE_WEIGHT), 18, WHITE, 5, 25)
     draw_text("C: {:.1f}".format(COHERE_WEIGHT), 18, WHITE, 5, 45)
-    draw_text("R: {}".format(NEIGHBOR_RADIUS), 18, WHITE, 5, 65)
+    draw_text(f"R: {NEIGHBOR_RADIUS}", 18, WHITE, 5, 65)
     if show_vectors:
         for sprite in mobs:
             sprite.draw_vectors()

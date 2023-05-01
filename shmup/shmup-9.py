@@ -63,10 +63,8 @@ class Player(pygame.sprite.Sprite):
         # move the sprite
         self.rect.x += self.speedx
         # stop at the edges
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.left < 0:
-            self.rect.left = 0
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.left = max(self.rect.left, 0)
 
     def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top)
@@ -136,9 +134,10 @@ clock = pygame.time.Clock()
 
 # load graphics and sounds
 pew_sound = pygame.mixer.Sound(path.join(sound_dir, 'pew.wav'))
-expl_sounds = []
-for snd in ['expl3.wav', 'expl6.wav']:
-    expl_sounds.append(pygame.mixer.Sound(path.join(sound_dir, snd)))
+expl_sounds = [
+    pygame.mixer.Sound(path.join(sound_dir, snd))
+    for snd in ['expl3.wav', 'expl6.wav']
+]
 pygame.mixer.music.load(path.join(sound_dir, 'tgfcoder-FrozenJam-SeamlessLoop.ogg'))
 pygame.mixer.music.set_volume(0.4)
 background = pygame.image.load(path.join(img_dir, "starfield.png")).convert()
@@ -147,10 +146,9 @@ player_image = pygame.image.load(path.join(img_dir, 'playerShip1_orange.png')).c
 bullet_image = pygame.image.load(path.join(img_dir, 'laserRed16.png')).convert()
 meteor_list = ['meteorBrown_med3.png', 'meteorBrown_med1.png',
                'meteorBrown_small2.png', 'meteorBrown_tiny1.png']
-meteor_images = []
-for img in meteor_list:
-    meteor_images.append(pygame.image.load(path.join(img_dir, img)).convert())
-
+meteor_images = [
+    pygame.image.load(path.join(img_dir, img)).convert() for img in meteor_list
+]
 # set up new game
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
@@ -158,7 +156,7 @@ bullets = pygame.sprite.Group()
 
 player = Player()
 all_sprites.add(player)
-for i in range(8):
+for _ in range(8):
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)

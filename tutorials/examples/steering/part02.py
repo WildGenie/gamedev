@@ -62,10 +62,7 @@ class Mob(pg.sprite.Sprite):
         return self.seek(self.target)
 
     def update(self):
-        if WANDER_TYPE == 1:
-            self.acc = self.wander()
-        else:
-            self.acc = self.wander_improved()
+        self.acc = self.wander() if WANDER_TYPE == 1 else self.wander_improved()
         # equations of motion
         self.vel += self.acc
         if self.vel.length() > MAX_SPEED:

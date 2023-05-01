@@ -144,8 +144,7 @@ class Player(pygame.sprite.Sprite):
 
     def check_collisions(self, dir):
         if dir == 'x':
-            hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
                 if self.speed_x > 0:
                     self.speed_x = 0
                     self.rect.right = hit_list[0].rect.left
@@ -153,8 +152,7 @@ class Player(pygame.sprite.Sprite):
                     self.speed_x = 0
                     self.rect.left = hit_list[0].rect.right
         elif dir == 'y':
-            hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
                 self.speed_y = 0
                 self.jumping = False
                 self.rect.bottom = hit_list[0].rect.top
@@ -163,10 +161,7 @@ class Player(pygame.sprite.Sprite):
         now = pygame.time.get_ticks()
         if self.hit:
             if now - self.hit_time < 300:
-                if self.dir == 'l':
-                    self.image = self.frames_hit_l[0]
-                else:
-                    self.image = self.frames_hit_r[0]
+                self.image = self.frames_hit_l[0] if self.dir == 'l' else self.frames_hit_r[0]
                 return
             else:
                 self.hit = False
@@ -191,39 +186,33 @@ class Player(pygame.sprite.Sprite):
             if now - self.last_update > 75:
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % 6
-                if self.dir == 'r':
-                    self.image = self.frames_running_r[self.current_frame]
-                else:
-                    self.image = self.frames_running_l[self.current_frame]
-        # not walking, but jumping or falling
+                self.image = (
+                    self.frames_running_r[self.current_frame]
+                    if self.dir == 'r'
+                    else self.frames_running_l[self.current_frame]
+                )
+        elif self.speed_y > 0:
+            self.image = (
+                self.frames_jumping_ul[0]
+                if self.dir == 'l'
+                else self.frames_jumping_ur[0]
+            )
+        elif self.dir == 'l':
+            self.image = self.frames_jumping_dl[0]
         else:
-            if self.speed_y > 0:
-                if self.dir == 'l':
-                    self.image = self.frames_jumping_ul[0]
-                else:
-                    self.image = self.frames_jumping_ur[0]
-            else:
-                if self.dir == 'l':
-                    self.image = self.frames_jumping_dl[0]
-                else:
-                    self.image = self.frames_jumping_dr[0]
+            self.image = self.frames_jumping_dr[0]
 
     def hit_enemy(self):
         # if you just hit, can't immediately hit again
-        if not self.hit:
-            self.hit = True
-            self.jumping = True
-            self.life -= 1
-            self.hit_time = pygame.time.get_ticks()
-            if self.dir == 'l':
-                self.speed_x = self.speed
-            else:
-                self.speed_x = -self.speed
+        if self.hit:
+            return
+        self.hit = True
+        self.jumping = True
+        self.life -= 1
+        self.hit_time = pygame.time.get_ticks()
+        self.speed_x = self.speed if self.dir == 'l' else -self.speed
             # could hit from above or below
-            if self.speed_y >= 0:
-                self.speed_y = -12
-            else:
-                self.speed_y = 8
+        self.speed_y = -12 if self.speed_y >= 0 else 8
 
     def jump(self):
         # need to see if there's a platform under us.  If not, can't jump
@@ -269,15 +258,14 @@ class PowerUp(pygame.sprite.Sprite):
             self.last_shimmer = now
             self.image = self.frames[0]
             self.current_frame = 0
-        if self.shimmer:
-            if now - self.last_update > 200:
-                self.last_update = now
-                self.current_frame += 1
-                if self.current_frame == len(self.frames) - 1:
-                    self.shimmer = False
-                    self.image = self.frames[0]
-                else:
-                    self.image = self.frames[self.current_frame]
+        if self.shimmer and now - self.last_update > 200:
+            self.last_update = now
+            self.current_frame += 1
+            if self.current_frame == len(self.frames) - 1:
+                self.shimmer = False
+                self.image = self.frames[0]
+            else:
+                self.image = self.frames[self.current_frame]
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -334,9 +322,7 @@ class Platform(pygame.sprite.Sprite):
 
     def offscreen(self):
         # check to see if the platform has moved off the bottom of the screen
-        if self.rect.top > HEIGHT + 5:
-            return True
-        return False
+        return self.rect.top > HEIGHT + 5
 
 
 class Game:
@@ -401,7 +387,7 @@ class Game:
         self.all_sprites.draw(self.screen)
         self.draw_hearts()
         fps_txt = "{:.2f}".format(self.clock.get_fps())
-        self.draw_text(str(fps_txt), 18, WIDTH-50, 10)
+        self.draw_text(fps_txt, 18, WIDTH-50, 10)
         # draw score
         pygame.display.flip()
 
@@ -443,37 +429,36 @@ class Game:
 
         # only collide with the platforms if falling down
         if self.player.speed_y > 0:
-            hit_list = pygame.sprite.spritecollide(self.player,
-                                                   self.platforms, False)
-                                                   # pygame.sprite.collide_mask)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(
+                self.player, self.platforms, False
+            ):
                 plat = self.find_lowest(hit_list)
-                if self.player.rect.bottom < plat.rect.bottom:
-                    if self.player.rect.right > plat.rect.left+24 and self.player.rect.left < plat.rect.right-24:
-                        self.player.speed_y = 0
-                        self.player.jumping = False
-                        self.player.rect.bottom = plat.rect.top
+                if (
+                    self.player.rect.bottom < plat.rect.bottom
+                    and self.player.rect.right > plat.rect.left + 24
+                    and self.player.rect.left < plat.rect.right - 24
+                ):
+                    self.player.speed_y = 0
+                    self.player.jumping = False
+                    self.player.rect.bottom = plat.rect.top
 
-        # hit enemies
-        hit_list = pygame.sprite.spritecollide(self.player, self.enemies,
-                                               False, pygame.sprite.collide_mask)
-        if hit_list:
+        if hit_list := pygame.sprite.spritecollide(
+            self.player, self.enemies, False, pygame.sprite.collide_mask
+        ):
             # bounce in the air and change briefly to hit image
             self.player.hit_enemy()
 
-        # hit powerups
-        hit_list = pygame.sprite.spritecollide(self.player, self.powerups,
-                                               True, pygame.sprite.collide_mask)
-        if hit_list:
-            if hit_list[0].kind == 'heart':
-                # self.heart_snd.play()
-                self.player.life += 1
-                if self.player.life > 3:
-                    self.player.life = 3
-            elif hit_list[0].kind == 'boost':
+        if hit_list := pygame.sprite.spritecollide(
+            self.player, self.powerups, True, pygame.sprite.collide_mask
+        ):
+            if hit_list[0].kind == 'boost':
                 # self.boost_snd.play()
                 self.player.speed_y -= 75
 
+            elif hit_list[0].kind == 'heart':
+                # self.heart_snd.play()
+                self.player.life += 1
+                self.player.life = min(self.player.life, 3)
         # delete platforms and enemies that fall off the screen
         # and create new ones to replace
         for enemy in self.enemies:

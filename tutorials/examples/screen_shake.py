@@ -80,17 +80,15 @@ class Player(pg.sprite.Sprite):
 
     def collide_with_walls(self, dir):
         if dir == 'x':
-            hits = pg.sprite.spritecollide(self, walls, False)
-            if hits:
+            if hits := pg.sprite.spritecollide(self, walls, False):
                 if self.vx > 0:
                     self.x = hits[0].rect.left - self.rect.width
                 if self.vx < 0:
                     self.x = hits[0].rect.right
                 self.vx = 0
                 self.rect.x = self.x
-        if dir == 'y':
-            hits = pg.sprite.spritecollide(self, walls, False)
-            if hits:
+        elif dir == 'y':
+            if hits := pg.sprite.spritecollide(self, walls, False):
                 if self.vy > 0:
                     self.y = hits[0].rect.top - self.rect.height
                 if self.vy < 0:
@@ -113,8 +111,7 @@ offset = repeat((0, 0))
 # load map file
 map_data = []
 with open('map.txt', 'rt') as f:
-    for line in f:
-        map_data.append(line)
+    map_data.extend(iter(f))
 for row, tiles in enumerate(map_data):
     for col, tile in enumerate(tiles):
         if tile == '1':

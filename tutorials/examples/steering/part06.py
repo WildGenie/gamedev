@@ -59,10 +59,15 @@ class Mob(pg.sprite.Sprite):
         return steer
 
     def find_collision(self, group, ahead, ahead2):
-        for obs in group:
-            if obs.collide_rect.collidepoint(ahead) or obs.collide_rect.collidepoint(ahead2):
-                return obs
-        return None
+        return next(
+            (
+                obs
+                for obs in group
+                if obs.collide_rect.collidepoint(ahead)
+                or obs.collide_rect.collidepoint(ahead2)
+            ),
+            None,
+        )
 
     def avoid_obstacles(self, group):
         dyn_length = LOOK_AHEAD * self.vel.length() / MAX_SPEED
@@ -70,8 +75,7 @@ class Mob(pg.sprite.Sprite):
         ahead2 = self.pos + self.vel.normalize() * dyn_length / 2
         self.a = vec(ahead)
         self.a2 = vec(ahead2)
-        hit = self.find_collision(group, ahead, ahead2)
-        if hit:
+        if hit := self.find_collision(group, ahead, ahead2):
             desired = self.vel.normalize() * MAX_SPEED
             if self.pos.x < hit.rect.right and self.pos.x > hit.rect.left:
                 if self.pos.y > hit.rect.bottom:
@@ -145,7 +149,7 @@ def randwall_sq():
     y = randint(0, HEIGHT / 32)
     Wall(x=x * 32, y=y * 32, w=32, h=32)
 
-for i in range(10):
+for _ in range(10):
     randwall()
 
 paused = False
@@ -171,7 +175,7 @@ while running:
             y = mpos[1] // 32
             if event.button == 1:
                 Wall(x=x * 32, y=y * 32)
-            if event.button == 3:
+            elif event.button == 3:
                 for sprite in all_sprites:
                     if sprite.rect.collidepoint(mpos):
                         sprite.kill()

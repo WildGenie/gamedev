@@ -50,10 +50,8 @@ class Player(pygame.sprite.Sprite):
         # move the sprite
         self.rect.x += self.speedx
         # stop at the edges
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.left < 0:
-            self.rect.left = 0
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.left = max(self.rect.left, 0)
 
     def shoot(self):
         bullet = Bullet(self.rect.centerx, self.rect.top)
@@ -114,7 +112,7 @@ bullets = pygame.sprite.Group()
 
 player = Player()
 all_sprites.add(player)
-for i in range(8):
+for _ in range(8):
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
@@ -135,7 +133,7 @@ while running:
     all_sprites.update()
     # check if bullets hit mobs
     hits = pygame.sprite.groupcollide(mobs, bullets, True, True)
-    for hit in hits:
+    for _ in hits:
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)

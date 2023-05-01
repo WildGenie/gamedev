@@ -66,7 +66,7 @@ class Game:
             self.playing = False
         if self.snake.hit_walls():
             self.playing = False
-        pg.display.set_caption('a:{} s:{}'.format(self.apple, self.snake.head))
+        pg.display.set_caption(f'a:{self.apple} s:{self.snake.head}')
 
     def draw(self):
         self.screen.fill(BGCOLOR)

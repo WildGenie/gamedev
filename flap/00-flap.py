@@ -30,15 +30,14 @@ while running:
     # check for events
     for event in pygame.event.get():
         # this one checks for the window being closed
-        if event.type == pygame.QUIT:
+        if (
+            event.type != pygame.QUIT
+            and event.type == pygame.KEYDOWN
+            and event.key == pygame.K_ESCAPE
+            or event.type == pygame.QUIT
+        ):
             pygame.quit()
             sys.exit()
-        # now check for keypresses
-        elif event.type == pygame.KEYDOWN:
-            # this one quits if the player presses Esc
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
 
     ##### Draw/update screen #########
     screen.fill(BGCOLOR)

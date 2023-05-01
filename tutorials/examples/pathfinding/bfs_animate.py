@@ -39,8 +39,7 @@ class SquareGrid:
         if (node.x + node.y) % 2:
             neighbors.reverse()
         neighbors = filter(self.in_bounds, neighbors)
-        neighbors = filter(self.passable, neighbors)
-        return neighbors
+        return filter(self.passable, neighbors)
 
     def draw(self):
         for wall in self.walls:
@@ -80,11 +79,8 @@ start = vec(14, 8)
 goal = vec(20, 0)
 frontier = deque()
 frontier.append(start)
-visited = []
-visited.append(start)
-path = {}
-path[vec2int(start)] = None
-
+visited = [start]
+path = {vec2int(start): None}
 paused = True
 running = True
 done = False

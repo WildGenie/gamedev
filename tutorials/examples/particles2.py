@@ -29,8 +29,7 @@ class Particle(pg.sprite.Sprite):
 class Emitter:
     def __init__(self, count):
         self.particle_pool = []
-        for i in range(count):
-            self.particle_pool.append(Particle())
+        self.particle_pool.extend(Particle() for _ in range(count))
 
 if __name__ == '__main__':
     pg.init()
@@ -55,14 +54,14 @@ if __name__ == '__main__':
             if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 running = False
             if event.type == pg.KEYDOWN and event.key == pg.K_1:
-                for i in range(100):
+                for _ in range(100):
                     Particle(circ, spawn, vec(randint(300, 400), 0).rotate(uniform(-110, -70)), uniform(1, 5), grav, [all_sprites])
             if event.type == pg.MOUSEBUTTONDOWN:
                 Particle(circ, spawn, vec(randint(50, 200), 0).rotate(uniform(0, 360)), 2, grav, [all_sprites])
         all_sprites.update(dt)
         keys = pg.key.get_pressed()
         if keys[pg.K_s]:
-            for i in range(10):
+            for _ in range(10):
                 Particle(circ, spawn + vec(0, 250), vec(randint(250, 350), 0).rotate(uniform(-110, -70)), uniform(1, 4), grav, [all_sprites])
         screen.fill((0, 0, 0))
         all_sprites.draw(screen)

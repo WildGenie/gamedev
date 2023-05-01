@@ -69,22 +69,18 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += SPEED
 
     def jump(self, dir):
-        if dir == 'f':
-            self.tile_y -= 1
-            if self.tile_y < 0:
-                self.tile_y = 0
-        elif dir == 'b':
+        if dir == 'b':
             self.tile_y += 1
-            if self.tile_y > TILEHEIGHT - 1:
-                self.tile_y = TILEHEIGHT - 1
+            self.tile_y = min(self.tile_y, TILEHEIGHT - 1)
+        elif dir == 'f':
+            self.tile_y -= 1
+            self.tile_y = max(self.tile_y, 0)
         elif dir == 'l':
             self.tile_x -= 1
-            if self.tile_x < 0:
-                self.tile_x = 0
+            self.tile_x = max(self.tile_x, 0)
         elif dir == 'r':
             self.tile_x += 1
-            if self.tile_x > TILEWIDTH - 1:
-                self.tile_x = TILEWIDTH - 1
+            self.tile_x = min(self.tile_x, TILEWIDTH - 1)
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self, lane):

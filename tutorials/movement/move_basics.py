@@ -33,14 +33,10 @@ class Player(pg.sprite.Sprite):
         self.move_8way_fixdiag()
         self.rect.x += self.vx
         self.rect.y += self.vy
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.top < 0:
-            self.rect.top = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+        self.rect.left = max(self.rect.left, 0)
+        self.rect.right = min(self.rect.right, WIDTH)
+        self.rect.top = max(self.rect.top, 0)
+        self.rect.bottom = min(self.rect.bottom, HEIGHT)
 
     def move_4way(self):
         keystate = pg.key.get_pressed()

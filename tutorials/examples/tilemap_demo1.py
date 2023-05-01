@@ -56,10 +56,7 @@ class Player(pg.sprite.Sprite):
         self.y = y
 
     def collide_walls(self):
-        for wall in walls:
-            if wall.x == self.x and wall.y == self.y:
-                return True
-        return False
+        return any(wall.x == self.x and wall.y == self.y for wall in walls)
 
     def move(self, dx=0, dy=0):
         self.x += dx
@@ -86,8 +83,7 @@ walls = pg.sprite.Group()
 # load map file
 map_data = []
 with open('map.txt', 'rt') as f:
-    for line in f:
-        map_data.append(line)
+    map_data.extend(iter(f))
 for row, tiles in enumerate(map_data):
     for col, tile in enumerate(tiles):
         if tile == '1':

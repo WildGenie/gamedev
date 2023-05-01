@@ -45,9 +45,7 @@ class Player(pygame.sprite.Sprite):
         self.accel = pygame.math.Vector2(0, 0)
         # keep accelerating as long as that dir key is down
         keystate = pygame.key.get_pressed()
-        a = 1.5
-        if FPS == 60:
-            a = 0.7
+        a = 0.7 if FPS == 60 else 1.5
         if keystate[pygame.K_LEFT]:
             self.accel.x = -a
         if keystate[pygame.K_RIGHT]:
@@ -80,8 +78,7 @@ class Player(pygame.sprite.Sprite):
 
     def check_collisions(self, dir):
         if dir == 'x':
-            hit_list = pygame.sprite.spritecollide(self, g.walls, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.walls, False):
                 if self.vel.x > 0:
                     self.vel.x = 0
                     self.pos.x = hit_list[0].rect.left - self.rect.width
@@ -91,8 +88,7 @@ class Player(pygame.sprite.Sprite):
                     self.pos.x = hit_list[0].rect.right
                     self.rect.left = hit_list[0].rect.right
         elif dir == 'y':
-            hit_list = pygame.sprite.spritecollide(self, g.walls, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.walls, False):
                 if self.vel.y > 0:
                     self.vel.y = 0
                     self.pos.y = hit_list[0].rect.top - self.rect.height
@@ -149,8 +145,7 @@ class Mob(pygame.sprite.Sprite):
 
     def check_collisions(self, dir):
         if dir == 'x':
-            hit_list = pygame.sprite.spritecollide(self, g.walls, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.walls, False):
                 if self.vel.x > 0:
                     self.vel.x = 0
                     self.pos.x = hit_list[0].rect.left - self.rect.width
@@ -160,8 +155,7 @@ class Mob(pygame.sprite.Sprite):
                     self.pos.x = hit_list[0].rect.right
                     self.rect.left = hit_list[0].rect.right
         elif dir == 'y':
-            hit_list = pygame.sprite.spritecollide(self, g.walls, False)
-            if hit_list:
+            if hit_list := pygame.sprite.spritecollide(self, g.walls, False):
                 if self.vel.y > 0:
                     self.vel.y = 0
                     self.pos.y = hit_list[0].rect.top - self.rect.height
@@ -248,7 +242,7 @@ class Game:
     def create_enemies(self):
         # create number/type of enemies based on self.level
         self.enemies.empty()
-        for i in range(self.level // 2):
+        for _ in range(self.level // 2):
             enemy = Mob(random.choice([35, WIDTH-60]),
                         random.choice([35, HEIGHT-60]))
             self.enemies.add(enemy)
@@ -256,7 +250,7 @@ class Game:
     def create_boxes(self):
         # create number/type of boxes based on self.level
         self.boxes.empty()
-        for i in range(self.level * 5):
+        for _ in range(self.level * 5):
             box = Box(random.randrange(35, WIDTH-59),
                       random.randrange(35, HEIGHT-59))
             # keep trying locs until we find an open one
@@ -280,11 +274,13 @@ class Game:
     def events(self):
         # handle all events
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if (
+                event.type != pygame.QUIT
+                and event.type == pygame.KEYDOWN
+                and event.key == pygame.K_ESCAPE
+                or event.type == pygame.QUIT
+            ):
                 self.quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.quit()
 
     def update(self):
         # collide player w/boxes and remove them
@@ -320,7 +316,7 @@ class Game:
         self.draw_text(lvl_txt, 18, 33, 53)
         # uncommment to show FPS (useful for troubleshooting)
         fps_txt = "{:.2f}".format(self.clock.get_fps())
-        self.draw_text(str(fps_txt), 18, WIDTH-50, 10)
+        self.draw_text(fps_txt, 18, WIDTH-50, 10)
         pygame.display.flip()
 
     def draw_text(self, text, size, x, y):

@@ -57,10 +57,8 @@ game_folder = path.dirname(__file__)
 grid = []
 with open(path.join(game_folder, 'map.txt'), 'rt') as f:
     for line in f:
-        row = []
         line = line.strip()
-        for char in line:
-            row.append(int(char))
+        row = [int(char) for char in line]
         grid.append(row)
 
 # icons
@@ -97,10 +95,7 @@ while running:
             y = mpos[1] // TILESIZE
             if event.button == 1:
                 # spawn/del walls
-                if grid[y][x] == 1:
-                    grid[y][x] = 0
-                else:
-                    grid[y][x] = 1
+                grid[y][x] = 0 if grid[y][x] == 1 else 1
             elif event.button == 3:
                 # move destination
                 if not grid[y][x]:
@@ -110,8 +105,6 @@ while running:
         all_sprites.update()
     pg.display.set_caption("{:.2f}".format(clock.get_fps()))
     screen.fill(DARKGRAY)
-    if show_debug:
-        pass
     draw_grid()
     draw_walls()
     draw_dest()

@@ -90,7 +90,7 @@ class Tileset(object):
 	def add_image(self, file):
 		image = pygame.image.load(file).convert_alpha()
 		if not image:
-			sys.exit("Error creating new Tileset: file %s not found" % file)
+			sys.exit(f"Error creating new Tileset: file {file} not found")
 		id = self.firstgid
 		for line in range(image.get_height() // self.tile_height):
 			for column in range(image.get_width() // self.tile_width):
@@ -174,9 +174,7 @@ class Cell(object):
 			return False
 		if self.py + self.tile.tile_height < other.y:
 			return False
-		if other.y + other.height - 1 < self.py:
-			return False
-		return True
+		return other.y + other.height - 1 >= self.py
 
 
 class LayerIterator(object):
@@ -253,12 +251,12 @@ class Layer(object):
 
 		data = tag.find('data')
 		if data is None:
-			raise ValueError('layer %s does not contain <data>' % layer.name)
+			raise ValueError(f'layer {layer.name} does not contain <data>')
 
 		data = data.text.strip()
 		data = data.encode() # Convert to bytes
 		# Decode from base 64 and decompress via zlib 
-		data = decompress(b64decode(data)) 
+		data = decompress(b64decode(data))
 		data = struct.unpack('<%di' % (len(data)/4,), data)
 		assert len(data) == layer.width * layer.height
 		for i, gid in enumerate(data):
@@ -299,9 +297,9 @@ class Layer(object):
 		'''
 		r = []
 		for propname in properties:
-			for cell in list(self.cells.values()):
-				if cell and propname in cell:
-					r.append(cell)
+			r.extend(
+				cell for cell in list(self.cells.values()) if cell and propname in cell
+			)
 		return r
 
 	def match(self, **properties):
@@ -412,7 +410,7 @@ visible: Whether the object is shown (1) or hidden (0). Defaults to 1.
 		if self.tile:
 			return '<Object %s,%s %s,%s tile=%d>' % (self.px, self.py, self.width, self.height, self.gid)
 		else:
-			return '<Object %s,%s %s,%s>' % (self.px, self.py, self.width, self.height)
+			return f'<Object {self.px},{self.py} {self.width},{self.height}>'
 
 	def __contains__(self, key):
 		if key in self._deleted_properties:
@@ -487,11 +485,7 @@ visible: Whether the object is shown (1) or hidden (0). Defaults to 1.
 			return False
 		if y2 < self.py:
 			return False
-		if x1 > self.px + self.width:
-			return False
-		if y1 > self.py + self.height:
-			return False
-		return True
+		return False if x1 > self.px + self.width else y1 <= self.py + self.height
 
 
 class ObjectLayer(object):
@@ -565,9 +559,11 @@ class ObjectLayer(object):
 		'''
 		r = []
 		for propname in properties:
-			for object in self.objects:
-				if object and propname in object or propname in self.properties:
-					r.append(object)
+			r.extend(
+				object
+				for object in self.objects
+				if object and propname in object or propname in self.properties
+			)
 		return r
 
 	def match(self, **properties):
@@ -590,12 +586,13 @@ class ObjectLayer(object):
 		'''Find all objects the rect is touching that have the indicated
 		property name set.
 		'''
-		r = []
-		for object in self.get_in_region(rect.left, rect.top, rect.right,
-				rect.bottom):
-			if propname in object or propname in self.properties:
-				r.append(object)
-		return r
+		return [
+			object
+			for object in self.get_in_region(
+				rect.left, rect.top, rect.right, rect.bottom
+			)
+			if propname in object or propname in self.properties
+		]
 
 	def get_in_region(self, x1, y1, x2, y2):
 		'''Return objects that are within the map-space
@@ -651,9 +648,7 @@ class Layers(list):
 		self.by_name[name] = layer
 
 	def __getitem__(self, item):
-		if isinstance(item, int):
-			return self[item]
-		return self.by_name[item]
+		return self[item] if isinstance(item, int) else self.by_name[item]
 
 class TileMap(object):
 	'''A TileMap is a collection of Layers which contain gridded maps or sprites
@@ -763,24 +758,22 @@ class TileMap(object):
 			# this branch for centered view and no view jump when
 			# crossing the center; both when world width <= view width
 			restricted_fx = self.px_width / 2
+		elif (fx - w2) < 0:
+			restricted_fx = w2		 # hit minimum X extent
+		elif (fx + w2) > self.px_width:
+			restricted_fx = self.px_width - w2		 # hit maximum X extent
 		else:
-			if (fx - w2) < 0:
-				restricted_fx = w2		 # hit minimum X extent
-			elif (fx + w2) > self.px_width:
-				restricted_fx = self.px_width - w2		 # hit maximum X extent
-			else:
-				restricted_fx = fx
+			restricted_fx = fx
 		if self.px_height <= h:
 			# this branch for centered view and no view jump when
 			# crossing the center; both when world height <= view height
 			restricted_fy = self.px_height / 2
+		elif (fy - h2) < 0:
+			restricted_fy = h2		 # hit minimum Y extent
+		elif (fy + h2) > self.px_height:
+			restricted_fy = self.px_height - h2		  # hit maximum Y extent
 		else:
-			if (fy - h2) < 0:
-				restricted_fy = h2		 # hit minimum Y extent
-			elif (fy + h2) > self.px_height:
-				restricted_fy = self.px_height - h2		  # hit maximum Y extent
-			else:
-				restricted_fy = fy
+			restricted_fy = fy
 
 		# ... and this is our focus point, center of screen
 		self.restricted_fx = int(restricted_fx)

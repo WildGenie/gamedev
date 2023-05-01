@@ -71,8 +71,7 @@ class SquareGrid:
     def find_neighbors(self, node):
         neighbors = [node + connection for connection in self.connections]
         neighbors = filter(self.in_bounds, neighbors)
-        neighbors = filter(self.passable, neighbors)
-        return neighbors
+        return filter(self.passable, neighbors)
 
     def draw(self):
         for wall in self.walls:
@@ -165,11 +164,8 @@ def t2px(tile):
 def dijkstra_search(graph, start):
     frontier = PriorityQueue()
     frontier.put(start, 0)
-    path = {}
-    cost = {}
-    path[start] = None
-    cost[start] = 0
-
+    path = {start: None}
+    cost = {start: 0}
     while not frontier.empty():
         current = frontier.get()
         for next in graph.find_neighbors(current):
@@ -211,6 +207,7 @@ print(paths)
 pg.time.set_timer(pg.USEREVENT, 50)
 paused = False
 running = True
+l = 0
 while running:
     clock.tick(FPS)
     for event in pg.event.get():
@@ -230,7 +227,7 @@ while running:
             if event.button == 1:
                 # move start
                 start = m.find_nearest((x, y))
-            if event.button == 3:
+            elif event.button == 3:
                 # move goal
                 goal = m.find_nearest((x, y))
             paths = dijkstra_search(m, m.find_nearest(goal))
@@ -244,7 +241,6 @@ while running:
     m.draw()
     # draw path from start to goal
     current = start
-    l = 0
     while current != goal:
         next_node = paths[current]
         current_tile = t2px(current)

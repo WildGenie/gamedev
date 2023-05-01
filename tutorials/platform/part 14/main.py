@@ -69,8 +69,7 @@ class Game:
         self.all_sprites.update()
         # check if player hits a platform - only if falling
         if self.player.vel.y > 0:
-            hits = pg.sprite.spritecollide(self.player, self.platforms, False)
-            if hits:
+            if hits := pg.sprite.spritecollide(self.player, self.platforms, False):
                 lowest = hits[0]
                 for hit in hits:
                     if hit.rect.bottom > lowest.rect.bottom:
@@ -114,12 +113,10 @@ class Game:
                 if self.playing:
                     self.playing = False
                 self.running = False
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
-                    self.player.jump()
-            if event.type == pg.KEYUP:
-                if event.key == pg.K_SPACE:
-                    self.player.jump_cut()
+            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                self.player.jump()
+            if event.type == pg.KEYUP and event.key == pg.K_SPACE:
+                self.player.jump_cut()
 
     def draw(self):
         # Game Loop - draw
@@ -138,7 +135,7 @@ class Game:
         self.draw_text(TITLE, 48, WHITE, WIDTH / 2, HEIGHT / 4)
         self.draw_text("Arrows to move, Space to jump", 22, WHITE, WIDTH / 2, HEIGHT / 2)
         self.draw_text("Press a key to play", 22, WHITE, WIDTH / 2, HEIGHT * 3 / 4)
-        self.draw_text("High Score: " + str(self.highscore), 22, WHITE, WIDTH / 2, 15)
+        self.draw_text(f"High Score: {str(self.highscore)}", 22, WHITE, WIDTH / 2, 15)
         pg.display.flip()
         self.wait_for_key()
         pg.mixer.music.fadeout(500)
@@ -151,7 +148,7 @@ class Game:
         pg.mixer.music.play(loops=-1)
         self.screen.fill(BGCOLOR)
         self.draw_text("GAME OVER", 48, WHITE, WIDTH / 2, HEIGHT / 4)
-        self.draw_text("Score: " + str(self.score), 22, WHITE, WIDTH / 2, HEIGHT / 2)
+        self.draw_text(f"Score: {str(self.score)}", 22, WHITE, WIDTH / 2, HEIGHT / 2)
         self.draw_text("Press a key to play again", 22, WHITE, WIDTH / 2, HEIGHT * 3 / 4)
         if self.score > self.highscore:
             self.highscore = self.score
@@ -159,7 +156,13 @@ class Game:
             with open(path.join(self.dir, HS_FILE), 'w') as f:
                 f.write(str(self.score))
         else:
-            self.draw_text("High Score: " + str(self.highscore), 22, WHITE, WIDTH / 2, HEIGHT / 2 + 40)
+            self.draw_text(
+                f"High Score: {str(self.highscore)}",
+                22,
+                WHITE,
+                WIDTH / 2,
+                HEIGHT / 2 + 40,
+            )
         pg.display.flip()
         self.wait_for_key()
         pg.mixer.music.fadeout(500)

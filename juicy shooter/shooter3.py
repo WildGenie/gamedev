@@ -216,15 +216,13 @@ class Player(pygame.sprite.Sprite):
         self.speed_y += GRAVITY
         # move the sprite
         self.rect.x += self.speed_x
-        hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-        if hit_list:
+        if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
             if self.speed_x > 0:
                 self.rect.right = hit_list[0].rect.left
             if self.speed_x < 0:
                 self.rect.left = hit_list[0].rect.right
         self.rect.y += self.speed_y
-        hit_list = pygame.sprite.spritecollide(self, g.platforms, False)
-        if hit_list:
+        if hit_list := pygame.sprite.spritecollide(self, g.platforms, False):
             if self.speed_y > 0:
                 self.rect.bottom = hit_list[0].rect.top
             if self.speed_y < 0:
@@ -239,21 +237,21 @@ class Player(pygame.sprite.Sprite):
             if now - self.last_update > 75:
                 self.last_update = now
                 self.current_frame = (self.current_frame + 1) % 7
-                if self.dir == 'l':
-                    self.image = self.frames_running_l[self.current_frame]
-                else:
-                    self.image = self.frames_running_r[self.current_frame]
+                self.image = (
+                    self.frames_running_l[self.current_frame]
+                    if self.dir == 'l'
+                    else self.frames_running_r[self.current_frame]
+                )
+        elif self.speed_y == 0:
+            self.image = (
+                self.frames_standing_l[0]
+                if self.dir == 'l'
+                else self.frames_standing_r[0]
+            )
+        elif self.dir == 'l':
+            self.image = self.frames_jumping_l[0]
         else:
-            if self.speed_y == 0:
-                if self.dir == 'l':
-                    self.image = self.frames_standing_l[0]
-                else:
-                    self.image = self.frames_standing_r[0]
-            else:
-                if self.dir == 'l':
-                    self.image = self.frames_jumping_l[0]
-                else:
-                    self.image = self.frames_jumping_r[0]
+            self.image = self.frames_jumping_r[0]
 
     def go(self, dir):
         # move in the direction pressed
@@ -261,7 +259,7 @@ class Player(pygame.sprite.Sprite):
         if dir == 'l':
             self.dir = 'l'
             self.speed_x = -self.speed
-        if dir == 'r':
+        elif dir == 'r':
             self.dir = 'r'
             self.speed_x = self.speed
 
@@ -307,10 +305,7 @@ class Bullet(pygame.sprite.Sprite):
         self.frames.append(image)
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-        if dir == 'l':
-            self.speed_x = -18
-        else:
-            self.speed_x = 18
+        self.speed_x = -18 if dir == 'l' else 18
         self.speed_y = random.randrange(-1, 2)
         self.rect.x = x
         self.rect.y = y

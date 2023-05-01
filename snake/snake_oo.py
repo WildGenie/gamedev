@@ -56,8 +56,7 @@ class Snake:
         # this list will hold the coordinates of the snake's body
         self.coords = []
         # the snake starts with 3 segments to the left of the head
-        for i in range(3):
-            self.coords.append(Coord(x-i, y))
+        self.coords.extend(Coord(x-i, y) for i in range(3))
         # start moving right
         self.dir = 'r'
 
@@ -103,11 +102,10 @@ class Snake:
         if self.coords[0].y == CELLHEIGHT:
             return True
 
-        # check if snake hit itself
-        for snake_body in self.coords[1:]:
-            if snake_body.x == self.coords[0].x and snake_body.y == self.coords[0].y:
-                return True
-        return False
+        return any(
+            snake_body.x == self.coords[0].x and snake_body.y == self.coords[0].y
+            for snake_body in self.coords[1:]
+        )
 
 # initialize pygame
 pygame.init()
@@ -178,7 +176,7 @@ def draw_text(text, size, x, y):
     screen.blit(text_surface, text_rect)
 
 def draw_score(score):
-    text = 'Score: %s' % score
+    text = f'Score: {score}'
     draw_text(text, 18, WIDTH-70, 10)
 
 def wait_for_key():
@@ -214,7 +212,7 @@ def show_go_screen(score):
     # display the Game Over screen
     screen.fill(BGCOLOR)
     draw_text("GAME OVER", 58, WIDTH/2, HEIGHT/4)
-    text = "Score: %s" % score
+    text = f"Score: {score}"
     draw_text(text, 24, WIDTH/2, HEIGHT/2)
     draw_text("Press a key to begin", 24, WIDTH/2, HEIGHT*3/4)
     pygame.display.update()

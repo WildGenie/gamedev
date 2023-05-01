@@ -40,8 +40,7 @@ class SquareGrid:
     def find_neighbors(self, node):
         neighbors = [node + connection for connection in self.connections]
         neighbors = filter(self.in_bounds, neighbors)
-        neighbors = filter(self.passable, neighbors)
-        return neighbors
+        return filter(self.passable, neighbors)
 
     def draw(self):
         for wall in self.walls:

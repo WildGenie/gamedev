@@ -8,7 +8,7 @@ class StateManager:
 
     def change(self, state):
         self.state = state
-        print("Changed to state: " + state)
+        print(f"Changed to state: {state}")
 
     def update(self):
         self.state.update()
@@ -45,7 +45,5 @@ class SplashScreen(GameState):
 
     def draw(self):
         self.screen.fill(self.bgcolor)
-        # draw title and splash images here
-        pass
 
     def

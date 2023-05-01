@@ -53,8 +53,7 @@ class SquareGrid:
     def find_neighbors(self, node):
         neighbors = [node + connection for connection in self.connections]
         neighbors = filter(self.in_bounds, neighbors)
-        neighbors = filter(self.passable, neighbors)
-        return neighbors
+        return filter(self.passable, neighbors)
 
     def draw(self):
         for wall in self.walls:
@@ -116,11 +115,8 @@ def heuristic(a, b):
 def a_star_search(graph, start, end):
     frontier = PriorityQueue()
     frontier.put(vec2int(start), 0)
-    path = {}
-    cost = {}
-    path[vec2int(start)] = None
-    cost[vec2int(start)] = 0
-
+    path = {vec2int(start): None}
+    cost = {vec2int(start): 0}
     while not frontier.empty():
         current = frontier.get()
         if current == end:
@@ -138,11 +134,8 @@ def a_star_search(graph, start, end):
 def dijkstra_search(graph, start, end):
     frontier = PriorityQueue()
     frontier.put(vec2int(start), 0)
-    path = {}
-    cost = {}
-    path[vec2int(start)] = None
-    cost[vec2int(start)] = 0
-
+    path = {vec2int(start): None}
+    cost = {vec2int(start): 0}
     while not frontier.empty():
         current = frontier.get()
         if current == end:
@@ -164,12 +157,21 @@ home_img.fill((0, 255, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
 cross_img = pg.image.load(path.join(icon_dir, 'cross.png')).convert_alpha()
 cross_img = pg.transform.scale(cross_img, (50, 50))
 cross_img.fill((255, 0, 0, 255), special_flags=pg.BLEND_RGBA_MULT)
-arrows = {}
 arrow_img = pg.image.load(path.join(icon_dir, 'arrowRight.png')).convert_alpha()
 arrow_img = pg.transform.scale(arrow_img, (50, 50))
-for dir in [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
-    arrows[dir] = pg.transform.rotate(arrow_img, vec(dir).angle_to(vec(1, 0)))
-
+arrows = {
+    dir: pg.transform.rotate(arrow_img, vec(dir).angle_to(vec(1, 0)))
+    for dir in [
+        (1, 0),
+        (0, 1),
+        (-1, 0),
+        (0, -1),
+        (1, 1),
+        (-1, 1),
+        (1, -1),
+        (-1, -1),
+    ]
+}
 g = WeightedGrid(GRIDWIDTH, GRIDHEIGHT)
 walls = [(10, 7), (11, 7), (12, 7), (13, 7), (14, 7), (15, 7), (16, 7), (7, 7), (6, 7), (5, 7), (5, 5), (5, 6), (1, 6), (2, 6), (3, 6), (5, 10), (5, 11), (5, 12), (5, 9), (5, 8), (12, 8), (12, 9), (12, 10), (12, 11), (15, 14), (15, 13), (15, 12), (15, 11), (15, 10), (17, 7), (18, 7), (21, 7), (21, 6), (21, 5), (21, 4), (21, 3), (22, 5), (23, 5), (24, 5), (25, 5), (18, 10), (20, 10), (19, 10), (21, 10), (22, 10), (23, 10), (14, 4), (14, 5), (14, 6), (14, 0), (14, 1), (9, 2), (9, 1), (7, 3), (8, 3), (10, 3), (9, 3), (11, 3), (2, 5), (2, 4), (2, 3), (2, 2), (2, 0), (2, 1), (0, 11), (1, 11), (2, 11), (21, 2), (20, 11), (20, 12), (23, 13), (23, 14), (24, 10), (25, 10), (6, 12), (7, 12), (10, 12), (11, 12), (12, 12), (5, 3), (6, 3), (5, 4)]
 # walls = []
@@ -210,9 +212,9 @@ while running:
                     g.walls.remove(mpos)
                 else:
                     g.walls.append(mpos)
-            if event.button == 2:
+            elif event.button == 2:
                 start = mpos
-            if event.button == 3:
+            elif event.button == 3:
                 goal = mpos
             path, c = search_type(g, goal, start)
 
@@ -230,10 +232,7 @@ while running:
     l = 0
     while current != goal:
         v = path[(current.x, current.y)]
-        if v.length_squared() == 1:
-            l += 10
-        else:
-            l += 14
+        l += 10 if v.length_squared() == 1 else 14
         img = arrows[vec2int(v)]
         x = current.x * TILESIZE + TILESIZE / 2
         y = current.y * TILESIZE + TILESIZE / 2
@@ -243,5 +242,12 @@ while running:
         current = current + path[vec2int(current)]
     draw_icons()
     draw_text(search_type.__name__, 30, GREEN, WIDTH - 10, HEIGHT - 10, align="bottomright")
-    draw_text('Path length:{}'.format(l), 30, GREEN, WIDTH - 10, HEIGHT - 45, align="bottomright")
+    draw_text(
+        f'Path length:{l}',
+        30,
+        GREEN,
+        WIDTH - 10,
+        HEIGHT - 45,
+        align="bottomright",
+    )
     pg.display.flip()

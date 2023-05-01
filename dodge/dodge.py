@@ -180,15 +180,13 @@ class Mob(pygame.sprite.Sprite):
             image = pygame.transform.rotate(image, -(self.dir+90) % 360)
             self.frames.append(image)
             image = self.sprite_sheet.get_image(112, 33, 56, 80)
-            image = pygame.transform.rotate(image, -(self.dir+90) % 360)
-            self.frames.append(image)
         else:
             image = self.sprite_sheet.get_image(16, 137, 72, 80)
             image = pygame.transform.rotate(image, -(self.dir+90) % 360)
             self.frames.append(image)
             image = self.sprite_sheet.get_image(104, 137, 72, 80)
-            image = pygame.transform.rotate(image, -(self.dir+90) % 360)
-            self.frames.append(image)
+        image = pygame.transform.rotate(image, -(self.dir+90) % 360)
+        self.frames.append(image)
         # set the starting frame
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
@@ -255,7 +253,7 @@ def show_go_screen(score):
     # display the Game Over screen
     screen.fill(BGCOLOR)
     draw_text("GAME OVER", 58, WIDTH/2, HEIGHT/4)
-    text = "Score: %s" % score
+    text = f"Score: {score}"
     draw_text(text, 24, WIDTH/2, HEIGHT/2)
     draw_text("Press a key to begin", 24, WIDTH/2, HEIGHT*3/4)
     pygame.display.update()
@@ -294,7 +292,7 @@ while True:
     player = Player()
     active_sprite_list.add(player)
     # create some mobs
-    for i in range(12):
+    for _ in range(12):
         mob = Mob()
         active_sprite_list.add(mob)
         mob_sprite_list.add(mob)
@@ -353,7 +351,7 @@ while True:
         active_sprite_list.update()
         active_sprite_list.draw(screen)
         # show_score(score)
-        text = 'Score: %s' % score
+        text = f'Score: {score}'
         draw_text(text, 18, 40, 10)
         pygame.display.flip()
 

@@ -72,8 +72,16 @@ def draw_labels(iso_mode):
         ptext.draw("X", (610, 120), fontsize=40)
         ptext.draw("Y", (180, 120), fontsize=40)
         # ptext.draw("(0,0)", (390, 15))
-        ptext.draw("X OFFSET: "+str(ISO_OFFSETX), bottomright=(790, 550), fontsize=30)
-        ptext.draw("Y OFFSET: "+str(ISO_OFFSETY), bottomright=(790, 590), fontsize=30)
+        ptext.draw(
+            f"X OFFSET: {str(ISO_OFFSETX)}",
+            bottomright=(790, 550),
+            fontsize=30,
+        )
+        ptext.draw(
+            f"Y OFFSET: {str(ISO_OFFSETY)}",
+            bottomright=(790, 590),
+            fontsize=30,
+        )
         ptext.draw("Grid Pos:", bottomleft=(10, 500), fontsize=30, fontname=None)
         ptext.draw("({:.0f}, {:.0f})".format(pos.x, pos.y),
                    bottomleft=(10, 530), fontsize=40,  fontname=None)
@@ -83,8 +91,16 @@ def draw_labels(iso_mode):
     else:
         ptext.draw("X", midtop=(300, 10), fontsize=40)
         ptext.draw("Y", midleft=(20, 300), fontsize=40)
-        ptext.draw("X OFFSET: "+str(ORTHO_OFFSETX), bottomright=(790, 550), fontsize=30)
-        ptext.draw("Y OFFSET: "+str(ORTHO_OFFSETY), bottomright=(790, 590), fontsize=30)
+        ptext.draw(
+            f"X OFFSET: {str(ORTHO_OFFSETX)}",
+            bottomright=(790, 550),
+            fontsize=30,
+        )
+        ptext.draw(
+            f"Y OFFSET: {str(ORTHO_OFFSETY)}",
+            bottomright=(790, 590),
+            fontsize=30,
+        )
         ptext.draw("Grid Pos:", topleft=(560, 50), fontsize=30, fontname=None)
         ptext.draw("({:.0f}, {:.0f})".format(pos.x, pos.y),
                    topleft=(560, 80), fontsize=40, fontname=None)
@@ -97,8 +113,8 @@ def do_click(pos, iso_mode):
     if iso_mode:
         pos = vec(pos[0], pos[1])
         grid_pos = screen_to_iso(pos)
-        print("Screen: ({}, {})".format(pos.x, pos.y))
-        print("Grid: ({}, {})".format(grid_pos.x, grid_pos.y))
+        print(f"Screen: ({pos.x}, {pos.y})")
+        print(f"Grid: ({grid_pos.x}, {grid_pos.y})")
 
 # Flag for iso/ortho mode - start in Ortho
 iso_mode = False
@@ -124,15 +140,10 @@ while True:
             elif event.key == pygame.K_DOWN:
                 pos.y += GRIDSIZE
             # don't allow movement off the grid
-            if pos.x < 0:
-                pos.x = 0
-            if pos.y < 0:
-                pos.y = 0
-            if pos.x > GRIDSIZE*10:
-                pos.x = GRIDSIZE*10
-            if pos.y > GRIDSIZE*10:
-                pos.y = GRIDSIZE*10
-
+            pos.x = max(pos.x, 0)
+            pos.y = max(pos.y, 0)
+            pos.x = min(pos.x, GRIDSIZE*10)
+            pos.y = min(pos.y, GRIDSIZE*10)
     screen.fill((0, 0, 0))
     if iso_mode:
         draw_iso_grid()

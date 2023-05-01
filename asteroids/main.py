@@ -25,9 +25,7 @@ class Game:
         self.clock = pg.time.Clock()
         # rotation cache to store rotated images of sprites
         # rather than repeated transforms every frame
-        self.rot_cache = {}
-        self.rot_cache['player'] = {}
-        self.rot_cache['rock'] = {}
+        self.rot_cache = {'player': {}, 'rock': {}}
         self.load_data()
 
     def draw_text(self, text, size, color, x, y, align='midtop'):
@@ -77,8 +75,6 @@ class Game:
             for i in range(self.player.shield.level + 1):
                 r = pg.Rect(x + offset + spacer + (box_width + spacer) * i, y + spacer, box_width, box_height)
                 pg.draw.rect(self.game_surface, fill_colors[self.player.shield.level], r)
-        else:
-            pass
         self.game_surface.blit(img, img_rect)
 
     def draw_lives(self, img, x, y, count):
@@ -113,7 +109,7 @@ class Game:
         self.aliens = pg.sprite.Group()
         self.mobs = pg.sprite.Group()
         self.player = Player(self, PLAYER_IMG)
-        for i in range(START_ROCKS):
+        for _ in range(START_ROCKS):
             Rock(self, 3, None)
         self.score = 0
         self.level = 1
@@ -147,16 +143,13 @@ class Game:
             for img in ROCK_IMAGES[size]:
                 self.rot_cache['rock'][img] = {}
         # explosions - 3 kinds
-        self.expl_frames = {}
-        self.expl_frames['lg'] = []
-        self.expl_frames['sm'] = []
-        self.expl_frames['sonic'] = []
+        self.expl_frames = {'lg': [], 'sm': [], 'sonic': []}
         for i in range(9):
-            img_name = 'sonicExplosion0{}.png'.format(i)
+            img_name = f'sonicExplosion0{i}.png'
             img = self.expl_player_sheet.get_image_by_name(img_name)
             img.set_colorkey(BLACK)
             self.expl_frames['sonic'].append(img)
-            img_name = 'regularExplosion0{}.png'.format(i)
+            img_name = f'regularExplosion0{i}.png'
             img = self.expl_sheet.get_image_by_name(img_name)
             img.set_colorkey(BLACK)
             img_lg = pg.transform.rotozoom(img, 0, 0.6)
@@ -165,8 +158,10 @@ class Game:
             self.expl_frames['sm'].append(img_sm)
         # image font - numerals for 0-9
         self.numbers = []
-        for i in range(10):
-            self.numbers.append(self.spritesheet.get_image_by_name('numeral{}.png'.format(i)))
+        self.numbers.extend(
+            self.spritesheet.get_image_by_name(f'numeral{i}.png')
+            for i in range(10)
+        )
         self.background = pg.image.load(path.join(img_dir, 'starfield.png')).convert_alpha()
         self.background_rect = self.background.get_rect()
         # shield images
@@ -190,11 +185,13 @@ class Game:
             self.bullet_sounds.append(snd)
         self.bomb_launch_sound = pg.mixer.Sound(path.join(snd_dir, BOMB_LAUNCH_SOUND))
         self.rock_exp_sounds = []
-        for sound in ROCK_EXPL_SOUNDS:
-            self.rock_exp_sounds.append(pg.mixer.Sound(path.join(snd_dir, sound)))
+        self.rock_exp_sounds.extend(
+            pg.mixer.Sound(path.join(snd_dir, sound)) for sound in ROCK_EXPL_SOUNDS
+        )
         self.bomb_exp_sounds = []
-        for sound in BOMB_EXPL_SOUNDS:
-            self.bomb_exp_sounds.append(pg.mixer.Sound(path.join(snd_dir, sound)))
+        self.bomb_exp_sounds.extend(
+            pg.mixer.Sound(path.join(snd_dir, sound)) for sound in BOMB_EXPL_SOUNDS
+        )
         self.pow_sounds = {}
         for pow_type in POW_SOUNDS.keys():
             self.pow_sounds[pow_type] = pg.mixer.Sound(path.join(snd_dir, POW_SOUNDS[pow_type]))
@@ -226,9 +223,7 @@ class Game:
         # bomb explosions take out rocks (player too?)
         hits = pg.sprite.groupcollide(self.mobs, self.bomb_explosions, False, False)
         for hit in hits:
-            if isinstance(hit, Pow) or isinstance(hit, ABullet):
-                pass
-            else:
+            if not isinstance(hit, Pow) and not isinstance(hit, ABullet):
                 hit.kill()
                 self.score += 4 - hit.size
                 if hit.size > 1:
@@ -270,11 +265,6 @@ class Game:
                     hit.kill()
                     if isinstance(bullet, Bullet):
                         bullet.kill()
-            if isinstance(hit, ABullet):
-                # TODO: decide whether player shots should hit alien shots
-                # hit.kill()
-                pass
-
         # check for collisions with player
         # 1) Rocks 2) alien shots 3) powerups 4) aliens
         hits = pg.sprite.spritecollide(self.player, self.mobs, True, pg.sprite.collide_mask)
@@ -305,24 +295,21 @@ class Game:
                 else:
                     self.player.die()
             elif isinstance(hit, Pow):
-                if hit.type == 'shield':
-                    if not self.player.shield:
-                        Shield(self, self.player)
-                    else:
-                        self.player.shield.level = 2
-                    self.pow_sounds[hit.type].play()
-                elif hit.type == 'gun':
+                if hit.type == 'gun':
                     if self.player.gun_level < 4:
                         self.player.gun_level += 1
                         self.pow_sounds[hit.type].play()
-            elif isinstance(hit, Alien):
-                pass
-
+                elif hit.type == 'shield':
+                    if self.player.shield:
+                        self.player.shield.level = 2
+                    else:
+                        Shield(self, self.player)
+                    self.pow_sounds[hit.type].play()
         # destroyed all rocks? next level
         # TODO: level change indication
         if len(self.rocks) == 0:
             self.level += 1
-            for i in range(self.level + 2):
+            for _ in range(self.level + 2):
                 Rock(self, choice([3, 2]), None)
 
         # game over
@@ -346,10 +333,10 @@ class Game:
         self.player_light_rect.center = self.player.pos
         self.fog.blit(self.player_light_img, self.player_light_rect)
         for sprite in self.all_sprites:
-            if isinstance(sprite, Bullet) or isinstance(sprite, ABullet):
+            if isinstance(sprite, (Bullet, ABullet)):
                 self.bullet_light_rect.center = sprite.pos
                 self.fog.blit(self.bullet_light_img, self.bullet_light_rect)
-            if isinstance(sprite, Alien) or isinstance(sprite, Explosion):
+            if isinstance(sprite, (Alien, Explosion)):
                 self.player_light_rect.center = sprite.pos
                 self.fog.blit(self.player_light_img, self.player_light_rect)
         self.game_surface.blit(self.fog, (0, 0), special_flags=pg.BLEND_RGBA_SUB)
@@ -373,7 +360,7 @@ class Game:
         if self.light:
             self.render_fog()
         self.draw_text(str(self.score), 28, WHITE, WIDTH / 2, 15, align='midtop')
-        self.draw_text("Level: " + str(self.level), 22, WHITE, 5, 15, align='topleft')
+        self.draw_text(f"Level: {str(self.level)}", 22, WHITE, 5, 15, align='topleft')
         self.draw_lives(self.player.life_image, WIDTH - 150, 15, self.player.lives)
         self.draw_shield_level(WIDTH - 150, 55)
         self.draw_hyper(WIDTH - 150, 105)
@@ -408,7 +395,7 @@ class Game:
         # show the game over screen
         self.game_surface.fill(BGCOLOR)
         self.draw_text("GAME OVER", 48, WHITE, WIDTH / 2, HEIGHT / 4)
-        self.draw_text("Score: " + str(self.score), 22, WHITE, WIDTH / 2, HEIGHT / 2)
+        self.draw_text(f"Score: {str(self.score)}", 22, WHITE, WIDTH / 2, HEIGHT / 2)
         self.draw_text("Press a key to play again", 22, WHITE, WIDTH / 2, HEIGHT * 3 / 4)
         self.screen.blit(self.game_surface, self.game_rect)
         pg.display.flip()

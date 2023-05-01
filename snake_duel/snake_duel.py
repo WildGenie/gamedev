@@ -134,10 +134,7 @@ class Snake:
             segment_rect = pg.Rect(x, y, CELLSIZE, CELLSIZE)
             pg.draw.rect(screen, self.color, segment_rect)
 
-players = []
-for i in range(2):
-    players.append(Snake(i))
-
+players = [Snake(i) for i in range(2)]
 show_start_screen()
 game_over = False
 running = True
@@ -145,11 +142,7 @@ while running:
     if game_over:
         show_go_screen()
         game_over = False
-        # respawn players after restart
-        players = []
-        for i in range(2):
-            players.append(Snake(i))
-
+        players = [Snake(i) for i in range(2)]
     clock.tick(FPS)
     # Game loop - events
     for event in pg.event.get():

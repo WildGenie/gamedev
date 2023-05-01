@@ -8,9 +8,9 @@ RED = [255, 0, 0]
 LIGHTBLUE = [0, 155, 155]
 FPS = 60
 WIDTH, HEIGHT = 800, 600
-OFFSET = pygame.math.Vector2(int(WIDTH/2), int(HEIGHT/2))
-OFFSETX = int(WIDTH / 2)
-OFFSETY = int(HEIGHT / 2)
+OFFSET = pygame.math.Vector2(WIDTH // 2, HEIGHT // 2)
+OFFSETX = WIDTH // 2
+OFFSETY = HEIGHT // 2
 
 class Box(pygame.sprite.Sprite):
     def __init__(self, game, image, *groups):
@@ -78,11 +78,13 @@ class Game:
         while running:
             self.dt = self.clock.tick(FPS) * 0.001
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                if (
+                    event.type != pygame.QUIT
+                    and event.type == pygame.KEYDOWN
+                    and event.key == pygame.K_ESCAPE
+                    or event.type == pygame.QUIT
+                ):
                     running = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        running = False
 
             self.update()
             self.draw()
@@ -91,15 +93,9 @@ class Game:
         sys.exit()
 
     def update(self):
-        self.emitter.count = 0
-        self.act_emitter_r.count = 0
-        self.act_emitter_l.count = 0
-        if self.box.thrust:
-            self.emitter.count = 100
-        if self.box.act_thrust > 0:
-            self.act_emitter_r.count = 25
-        if self.box.act_thrust < 0:
-            self.act_emitter_l.count = 25
+        self.emitter.count = 100 if self.box.thrust else 0
+        self.act_emitter_r.count = 25 if self.box.act_thrust > 0 else 0
+        self.act_emitter_l.count = 25 if self.box.act_thrust < 0 else 0
         self.all_sprites.update()
         self.emitter.update()
         self.act_emitter_r.update()

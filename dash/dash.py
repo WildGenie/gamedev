@@ -82,16 +82,14 @@ class TileRenderer:
         for layer in self.tmxdata.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
                 for x, y, gid in layer:
-                    tile = gt(gid)
-                    if tile:
+                    if tile := gt(gid):
                         surface.blit(tile, (x*tw, y*th))
-                    # else:
-                    #     surface.blit(test_img, (x*tw, y*th))
+                                # else:
+                                #     surface.blit(test_img, (x*tw, y*th))
             elif isinstance(layer, pytmx.TiledObjectGroup):
                 pass
             elif isinstance(layer, pytmx.TiledImageLayer):
-                image = gt(layer.gid)
-                if image:
+                if image := gt(layer.gid):
                     surface.blit(image, (0, 0))
 
     def make_map(self):
@@ -129,8 +127,7 @@ class Player(pygame.sprite.Sprite):
             self.game.running = False
         # now move in y and see if we need to land on something
         self.rect.y += self.vy
-        hits = pygame.sprite.spritecollide(self, self.game.obstacles, False)
-        if hits:
+        if hits := pygame.sprite.spritecollide(self, self.game.obstacles, False):
             if hits[0].type == 'platform':
                 self.rect.bottom = hits[0].rect.top
                 self.vy = 0
@@ -154,12 +151,11 @@ class Player(pygame.sprite.Sprite):
     def get_keys(self):
         keystate = pygame.key.get_pressed()
         mousestate = pygame.mouse.get_pressed()
-        if keystate[pygame.K_SPACE] or mousestate[0]:
-            if not self.jumping:
-                self.rect.y -= 1
-                self.vy = -PLAYER_JUMP
-                self.jumping = True
-                self.jump_time = pygame.time.get_ticks()
+        if (keystate[pygame.K_SPACE] or mousestate[0]) and not self.jumping:
+            self.rect.y -= 1
+            self.vy = -PLAYER_JUMP
+            self.jumping = True
+            self.jump_time = pygame.time.get_ticks()
 
     def rotate(self):
         if self.jumping:
@@ -299,13 +295,13 @@ class Game:
         # catch all events here
         for event in pygame.event.get():
             # this one checks for the window being closed
-            if event.type == pygame.QUIT:
+            if (
+                event.type != pygame.QUIT
+                and event.type == pygame.KEYDOWN
+                and event.key == pygame.K_ESCAPE
+                or event.type == pygame.QUIT
+            ):
                 self.quit()
-            # now check for keypresses
-            elif event.type == pygame.KEYDOWN:
-                # this one quits if the player presses Esc
-                if event.key == pygame.K_ESCAPE:
-                    self.quit()
                 # add any other key events here
 
     def show_start_screen(self):

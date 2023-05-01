@@ -221,7 +221,7 @@ def show_go_screen(score):
     # display the Game Over screen
     screen.blit(background, background_rect)
     draw_text("GAME OVER", 58, WIDTH/2, HEIGHT/4)
-    text = "Score: %s" % score
+    text = f"Score: {score}"
     draw_text(text, 24, WIDTH/2, HEIGHT/2)
     draw_text("Press a key to begin", 24, WIDTH/2, HEIGHT*3/4)
     pygame.display.update()
@@ -274,7 +274,7 @@ while True:
     player = Player()
     active_sprite_list.add(player)
     powerup = None
-    for i in range(10):
+    for _ in range(10):
         meteor = Meteor()
         active_sprite_list.add(meteor)
         meteor_sprite_list.add(meteor)
@@ -309,11 +309,9 @@ while True:
         if random.random() > 0.98 and powerup is None and player.level < 2:
             powerup = Powerup()
             active_sprite_list.add(powerup)
-        # check for collisions
-        # first, ship with meteors
-        hit = pygame.sprite.spritecollideany(player, meteor_sprite_list,
-                                             pygame.sprite.collide_mask)
-        if hit:
+        if hit := pygame.sprite.spritecollideany(
+            player, meteor_sprite_list, pygame.sprite.collide_mask
+        ):
             # you die
             player.explode_snd.play()
             pygame.time.wait(500)
@@ -322,7 +320,7 @@ while True:
         hits = pygame.sprite.groupcollide(meteor_sprite_list, bullet_sprite_list,
                                           True, True, pygame.sprite.collide_mask)
         # for each meteor destroyed, spawn a new one
-        for hit in hits:
+        for _ in hits:
             player.hit_snd.play()
             player.score += 10
             newmeteor = Meteor()
@@ -330,8 +328,7 @@ while True:
             meteor_sprite_list.add(newmeteor)
         # check for powerup
         if powerup is not None:
-            hit = pygame.sprite.collide_mask(player, powerup)
-            if hit:
+            if hit := pygame.sprite.collide_mask(player, powerup):
                 active_sprite_list.remove(powerup)
                 powerup = None
                 player.powerup_snd.play()
@@ -344,11 +341,11 @@ while True:
         screen.blit(background, background_rect)
         active_sprite_list.update()
         active_sprite_list.draw(screen)
-        text = 'Score: %s' % player.score
+        text = f'Score: {player.score}'
         draw_text(text, 18, 45, 10)
         # after drawing, flip the display
         fps_txt = "{:.2f}".format(clock.get_fps())
-        draw_text(str(fps_txt), 18, WIDTH-50, 10)
+        draw_text(fps_txt, 18, WIDTH-50, 10)
         pygame.display.flip()
 
     show_go_screen(player.score)

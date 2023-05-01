@@ -78,24 +78,21 @@ class Player(pygame.sprite.Sprite):
         last_rect = self.rect.copy()
         # walk at 8 pixels per frame in the dir
         if self.walking and self.dx < 64:
-            if self.dir == 'up':
-                self.rect.y -= 8
-            elif self.dir == 'down':
+            if self.dir == 'down':
                 self.rect.y += 8
             elif self.dir == 'left':
                 self.rect.x -= 8
             elif self.dir == 'right':
                 self.rect.x += 8
+            elif self.dir == 'up':
+                self.rect.y -= 8
             self.dx += 8
         # check for collisions
         # reset to the previous rect if collides w/foreground layer
         if len(tilemap.layers['triggers'].collide(self.rect, 'solid')) > 0:
             self.rect = last_rect
-        # switch to walking sprite after 32 pixels
         if self.dx == 32:
-            # step keeps track of when to flip (so it looks like stepping
-            # with different feet)
-            if (self.dir == 'up' or self.dir == 'down') and self.step == 'leftFoot':
+            if self.dir in ['up', 'down'] and self.step == 'leftFoot':
                 self.image = pygame.transform.flip(self.image, True, False)
                 self.step = 'rightFoot'
             else:
@@ -161,17 +158,14 @@ while running:
     # check for all your events
     for event in pygame.event.get():
         # this one checks for the window being closed
-        if event.type == pygame.QUIT:
+        if (
+            event.type != pygame.QUIT
+            and event.type == pygame.KEYDOWN
+            and event.key == pygame.K_ESCAPE
+            or event.type == pygame.QUIT
+        ):
             pygame.quit()
             sys.exit()
-        # now check for keypresses
-        elif event.type == pygame.KEYDOWN:
-            # this one quits if the player presses Esc
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
-            # add any other key events here
-
     ##### Game logic goes here  #########
     tilemap.update(dt)
     ##### Draw/update screen #########
